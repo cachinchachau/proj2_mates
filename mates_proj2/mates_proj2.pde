@@ -1,3 +1,9 @@
+//enum per revisar cap a quin costat sprite del personatge mira i així saber cap a on ha de saltar
+enum Looking
+{
+  LEFT,
+  RIGHT
+}
 
 //PLAYER VAR
 PVector playerPos;
@@ -16,6 +22,8 @@ boolean isJumping = false;
 int charge = 0;
 
 float u = 0.0;
+
+Looking plLook = Looking.LEFT;
 
 curva jump;
 
@@ -219,11 +227,13 @@ void keyPressed()
   {
       playerDir = 1;
       playerLook = 1;
+      plLook = Looking.RIGHT;
   }
   else if (key == 'a' || key == 'A')
   {
       playerDir = -1;
       playerLook = -1;
+      plLook = Looking.LEFT;
   }
   
   if (key == ' ' && isGrounded())
@@ -250,10 +260,21 @@ void keyReleased()
     charging = false;
     isJumping = true;
     
-    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
-    p[1] = new PVector(playerPos.x + 50, playerPos.y - 100); // Y este es el P1
-    p[2] = new PVector(playerPos.x + 100, playerPos.y - 100); // El P2
-    p[3] = new PVector(playerPos.x + 150, playerPos.y); // P3
+    if (plLook == Looking.LEFT)
+    {
+      p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+      p[1] = new PVector(playerPos.x - 50, playerPos.y - 100); // Y este es el P1
+      p[2] = new PVector(playerPos.x - 100, playerPos.y - 100); // El P2
+      p[3] = new PVector(playerPos.x - 150, playerPos.y); // P3
+    }
+    else
+    {
+      p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+      p[1] = new PVector(playerPos.x + 50, playerPos.y - 100); // Y este es el P1
+      p[2] = new PVector(playerPos.x + 100, playerPos.y - 100); // El P2
+      p[3] = new PVector(playerPos.x + 150, playerPos.y); // P3
+    }
+ 
   
     jump = new curva(p);
     jump.calcular_coefs();

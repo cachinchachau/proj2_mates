@@ -20,6 +20,7 @@ boolean charging = false;
 boolean isJumping = false;
 
 int charge = 0;
+float jumpTime = 0;
 
 float u = 0.0;
 
@@ -169,6 +170,11 @@ void draw()
   if (charging)//CARGANDO
   {
     charge++;
+    
+    if (charge >= 100)
+    {
+      jump();
+    }
   }
   else
   {
@@ -220,70 +226,88 @@ void draw()
 }
 
 //INPUTS
+
 void keyPressed()
 {
   
-  if (key == 'd' || key == 'D')
+  switch(keyCode)
   {
-      playerDir = 1;
-      playerLook = 1;
-      plLook = Looking.RIGHT;
-  }
-  else if (key == 'a' || key == 'A')
-  {
+    case LEFT:
       playerDir = -1;
       playerLook = -1;
       plLook = Looking.LEFT;
+      break;
+    case RIGHT:
+      playerDir = 1;
+      playerLook = 1;
+      plLook = Looking.RIGHT;
+      break;
   }
   
   if (key == ' ' && isGrounded())
   {
     charging = true;
   }
-  
+
 }
 
 void keyReleased()
 {
   
-  if (key == 'd' || key == 'D')
+  switch(keyCode)
   {
+    case LEFT:
       playerDir = 0;
-  }
-  else if (key == 'a' || key == 'A')
-  {
+      break;
+    case RIGHT:
       playerDir = 0;
+      break;
+    
   }
   
   if (key == ' ')
   {
-    charging = false;
-    isJumping = true;
     
-    if (plLook == Looking.LEFT)
+    if (!isJumping)
     {
-      p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
-      p[1] = new PVector(playerPos.x - 50, playerPos.y - 100); // Y este es el P1
-      p[2] = new PVector(playerPos.x - 100, playerPos.y - 100); // El P2
-      p[3] = new PVector(playerPos.x - 150, playerPos.y); // P3
+      jump();
     }
-    else
-    {
-      p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
-      p[1] = new PVector(playerPos.x + 50, playerPos.y - 100); // Y este es el P1
-      p[2] = new PVector(playerPos.x + 100, playerPos.y - 100); // El P2
-      p[3] = new PVector(playerPos.x + 150, playerPos.y); // P3
-    }
- 
-  
-    jump = new curva(p);
-    jump.calcular_coefs();
     
   }
 
 }
 
 //FUNCTIONS
+
+void jump()
+{
+  charging = false;
+  isJumping = true;
+  
+  jumpTime = 1.5/charge;
+  
+  println("jump time is: " + jumpTime);
+  
+  if (plLook == Looking.LEFT)
+  {
+    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x - (charge - (charge / 3)), playerPos.y - charge * 1.5); // Y este es el P1
+    p[2] = new PVector(playerPos.x - (charge + (charge / 3)), playerPos.y - charge * 1.5); // El P2
+    p[3] = new PVector(playerPos.x - charge * 2, playerPos.y); // P3
+  }
+  else
+  {
+    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x + (charge - (charge / 3)), playerPos.y - charge * 1.5); // Y este es el P1
+    p[2] = new PVector(playerPos.x + (charge + (charge / 3)), playerPos.y - charge * 1.5); // El P2
+    p[3] = new PVector(playerPos.x + charge * 2, playerPos.y); // P3
+  }
+ 
+  jump = new curva(p);
+  jump.calcular_coefs();
+      
+    
+}
 
 void checkPlayerCollY()
 {
@@ -355,11 +379,11 @@ void playerJumpCalc()
     jump.coefs[2].y * u * u +
     jump.coefs[3].y * u * u * u;
     
-    float w = 0.01;
+    float w = jumpTime;
     
     u += w;
     if (u >= 0.5){
-      w = -0.01;
+      w = -jumpTime;
     }
     
 }

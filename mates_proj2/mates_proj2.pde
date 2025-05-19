@@ -243,7 +243,7 @@ void draw()
     if (playerPos.y < 0) { // Going up to next room
       changeRoom(1);
     } 
-    else if (playerPos.y > height) { // Going down to previous room
+    else if (playerPos.y > height && room > 1) { // Going down to previous room
       changeRoom(-1);
     }
   }
@@ -581,9 +581,10 @@ void changeRoom(int direction) {
   // 2. Change room and reposition player
   room += direction;
   if (direction > 0) {
-    playerPos.y = height - 3; // Near bottom of new room
+    playerPos.y = height - 10; // Near bottom of new room
   } else {
-    playerPos.y = 3; // Near top of new room
+    playerPos.y = 10; 
+    isJumping = false;
   }
   
   // 3. If jumping, continue with similar motion

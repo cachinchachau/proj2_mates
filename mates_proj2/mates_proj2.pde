@@ -142,6 +142,11 @@ float obsY2[];//array de posicions y del terreny sala 2
 float obsSizeX2[];// tamany X dels obstacles sala 2
 float obsSizeY2[];// tamany Y dels obstacles sala 2
 
+float obsX3[];//array de posicions x del terreny sala 3
+float obsY3[];//array de posicions y del terreny sala 3
+float obsSizeX3[];// tamany X dels obstacles sala 3
+float obsSizeY3[];// tamany Y dels obstacles sala 3
+
 int numTerr;
 
 void setup()
@@ -192,10 +197,30 @@ void setup()
   obsSizeX2 = new float[4];
   obsSizeY2 = new float[4];
   
-  obsX2[0] = 75;
-  obsY2[0] = 475;
-  obsSizeX2[0] = 150;
+  obsX2[0] = 50;
+  obsY2[0] = 485;
+  obsSizeX2[0] = 100;
   obsSizeY2[0] = 50;
+  
+  obsX2[1] = 300;
+  obsY2[1] = 375;
+  obsSizeX2[1] = 100;
+  obsSizeY2[1] = 50;
+  
+  obsX2[2] = 450;
+  obsY2[2] = 250;
+  obsSizeX2[2] = 100;
+  obsSizeY2[2] = 50;
+  
+  obsX2[3] = 250;
+  obsY2[3] = 100;
+  obsSizeX2[3] = 150;
+  obsSizeY2[3] = 50;
+  
+  obsX3 = new float[4];
+  obsY3 = new float[4];
+  obsSizeX3 = new float[4];
+  obsSizeY3 = new float[4];
   
   p = new PVector[4];
   
@@ -227,8 +252,6 @@ void draw()
     if (isJumping)//SALTANDO
     {
       playerJumpCalc();
-      jump.pintar_curva();
-      jump.pintar_puntos_de_ctrl();
     }
     else//CAMINANDO/QUIETO
     {
@@ -257,7 +280,7 @@ void draw()
       checkPlayerColl(obsX2, obsY2, obsSizeX2, obsSizeY2);
       break;
     case 3:
-      checkPlayerColl(obsX1, obsY1, obsSizeX1, obsSizeY1);
+      checkPlayerColl(obsX3, obsY3, obsSizeX3, obsSizeY3);
       break;
   }
   
@@ -308,7 +331,7 @@ void draw()
     case 3:
       for (int i = 0; i < numTerr; i++)
       {
-        rect(obsX1[i], obsY1[i], obsSizeX1[i], obsSizeY1[i]);
+        rect(obsX3[i], obsY3[i], obsSizeX3[i], obsSizeY3[i]);
       }
       break;
   }
@@ -452,12 +475,13 @@ void jumpCalcSwitch()
   
 }
 
-void checkPlayerColl(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY)
-{
-  checkPlayerCollX(obsX, obsY, obsSizeX, obsSizeY);
+void checkPlayerColl(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
+  // First check Y collisions (most important for standing)
   checkPlayerCollY(obsX, obsY, obsSizeX, obsSizeY);
+  
+  // Then check X collisions
+  checkPlayerCollX(obsX, obsY, obsSizeX, obsSizeY);
 }
-
 
 void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
   float pT = playerPos.y - playerSize/2;
@@ -473,9 +497,9 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
     float obsL = obsX[i] - obsSizeX[i]/2;
     float obsR = obsX[i] + obsSizeX[i]/2;
     
-    // mirem si el player esta al rang x del terreny
+    // Check if player is within X bounds of obstacle
     if (pR > obsL && pL < obsR) {
-      // busquem collisions amb el terreny
+      // Landing on top of platform
       if (pB > obsT && pT < obsT && playerSpeedY <= 0) {
         playerPos.y = obsT - playerSize/2;
         playerSpeedY = 0;
@@ -483,7 +507,7 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
         u = 0;
         onGround = true;
       }
-      // collisions amb el sostre
+      // Hitting bottom of platform
       else if (pT < obsB && pB > obsB && playerSpeedY >= 0) {
         playerPos.y = obsB + playerSize/2;
         playerSpeedY = 0;
@@ -491,12 +515,11 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
     }
   }
   
-  // apliquem gravetat si no esta al terreny
+  // Apply gravity if not on ground
   if (!onGround && !isJumping && !charging) {
     playerSpeedY = -3;
   }
 }
-
 
 void checkPlayerCollX(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
   float pT = playerPos.y - playerSize/2;
@@ -510,28 +533,22 @@ void checkPlayerCollX(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
     float obsL = obsX[i] - obsSizeX[i]/2;
     float obsR = obsX[i] + obsSizeX[i]/2;
     
-    // mirar si el player esta al rang y del terreny
+    // Check if player is within Y bounds of obstacle
     if (pB > obsT && pT < obsB) {
-      // check paret esquerra (colliding with right side of obstacle)
-      if (pR > obsL && pL < obsL && playerDir >= 0) {
-        playerPos.x = obsL - playerSize/2 - 1; // -1 to ensure we're clearly outside
+      // Left side collision
+      if (pR > obsR && pL < obsR) {
+        playerPos.x = obsR + playerSize/2 + 1;
       }
-      // check paret dreta (colliding with left side of obstacle)
-      else if (pL < obsR && pR > obsR && playerDir <= 0) {
-        playerPos.x = obsR + playerSize/2 + 1; // +1 to ensure we're clearly outside
+      // Right side collision
+      else if (pL < obsL && pR > obsL) {
+        playerPos.x = obsL - playerSize/2 - 1;
       }
     }
   }
   
-  // Add screen boundary checks
-  if (pL < 0) {
-    playerPos.x = playerSize/2;
-  }
-  if (pR > width) {
-    playerPos.x = width - playerSize/2;
-  }
+  // Screen boundaries
+  playerPos.x = constrain(playerPos.x, playerSize/2, width - playerSize/2);
 }
-
 float getMagnitude(PVector v)
 {
   return sqrt(v.x*v.x + v.y*v.y);

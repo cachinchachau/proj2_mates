@@ -315,7 +315,7 @@ void draw()
 
 
   
-  println(charge);
+  println(room);
 
 }
 
@@ -425,8 +425,14 @@ void jumpCalc()
 
 void jumpCalcSwitch()
 {
-
-  if (plLook == Looking.LEFT)
+  if (playerDir == 0)
+  {
+    p[0] = new PVector(playerPos.x,  height+jumpY); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x , height+jumpY - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x , height+jumpY - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x , height+jumpY); // P3
+  }
+  else if (plLook == Looking.LEFT)
   {
     p[0] = new PVector(playerPos.x, height+jumpY); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x - (charge - (charge / 2.5)), height+jumpY - charge * 2); // Y este es el P1

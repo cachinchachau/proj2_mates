@@ -8,7 +8,7 @@ enum Looking
 //PLAYER VAR
 PVector playerPos;
 
-int playerSize = 32;
+int playerSize = 45;
 
 float playerSpeedX = 2;
 float playerSpeedY = -3;
@@ -138,10 +138,10 @@ void setup()
   imageMode(CENTER);
   rectMode(CENTER);
   
-  toddR = loadImage("toddR.png");
-  toddL = loadImage("toddL.png");
-  toddChargingR = loadImage("toddChargingR.png");
-  toddChargingL = loadImage("toddChargingL.png");
+  toddR = loadImage("rightIdle.png");
+  toddL = loadImage("leftIdle.png");
+  toddChargingR = loadImage("rightPrepared.png");
+  toddChargingL = loadImage("leftPrepared.png");
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;

@@ -30,6 +30,13 @@ curva jump;
 
 float jumpY;
 
+//Varaibles Fulla
+curva cBezierFulla;
+PImage leaf;
+float aux = 0.0; // Parámetro "aux" per a recorrer la curva
+PVector fulla; //Objecte que recorrerà la curva
+
+
 class curva {
   // Atributos
   PVector[] puntos_de_ctrl;
@@ -85,7 +92,31 @@ class curva {
       +4.5*puntos_de_ctrl[3].y;
   }
 
-  void pintar_curva() {
+  // Método para calcular los coeficientes de Bézier
+  void calcular_coefsBezier() {
+    // C0 = P0
+    coefs[0].set(puntos_de_ctrl[0]);
+    
+    // C1 = -3P0 + 3P1
+    coefs[1].set(
+      -3 * puntos_de_ctrl[0].x + 3 * puntos_de_ctrl[1].x,
+      -3 * puntos_de_ctrl[0].y + 3 * puntos_de_ctrl[1].y
+    );
+    
+    // C2 = 3P0 - 6P1 + 3P2
+    coefs[2].set(
+      3 * puntos_de_ctrl[0].x - 6 * puntos_de_ctrl[1].x + 3 * puntos_de_ctrl[2].x,
+      3 * puntos_de_ctrl[0].y - 6 * puntos_de_ctrl[1].y + 3 * puntos_de_ctrl[2].y
+    );
+    
+    // C3 = -P0 + 3P1 - 3P2 + P3
+    coefs[3].set(
+      -puntos_de_ctrl[0].x + 3 * puntos_de_ctrl[1].x - 3 * puntos_de_ctrl[2].x + puntos_de_ctrl[3].x,
+      -puntos_de_ctrl[0].y + 3 * puntos_de_ctrl[1].y - 3 * puntos_de_ctrl[2].y + puntos_de_ctrl[3].y
+    );
+  }
+
+  void pintar_curvaSalt() {
     float x, y;
     // Pintara los puntos de control
     // Tambien pintara a la curva
@@ -107,7 +138,7 @@ class curva {
     }
   }
   
-  void pintar_puntos_de_ctrl() {
+  void pintar_puntos_de_ctrlSalt() {
     strokeWeight(15.0);
     stroke(255, 0, 0);
     for (int i=0; i<4; i++) {
@@ -116,7 +147,43 @@ class curva {
   }
 }
 
+// Calcula la nova posició de la fulla en la curva
+void calNovaPosFulla() {
+  if (fulla == null || cBezierFulla == null) return;
+  
+  // Calcul de la posició en la curva
+  float u = aux;
+  float x = cBezierFulla.coefs[0].x +
+            cBezierFulla.coefs[1].x * u +
+            cBezierFulla.coefs[2].x * u * u +
+            cBezierFulla.coefs[3].x * u * u * u;
+            
+  float y = cBezierFulla.coefs[0].y +
+            cBezierFulla.coefs[1].y * u +
+            cBezierFulla.coefs[2].y * u * u +
+            cBezierFulla.coefs[3].y * u * u * u;
+  
+  fulla.set(x, y);
+  
+  // Incrementar el parámetro "aux"
+  aux += 0.01;
+  if (aux >= 1.0) {
+    aux = 0.0; // Reiniciar
+  }
+}
+
+// Dibuja la hoja fulla
+void pinta_fulla() {
+  if (fulla != null && leaf != null) {
+    imageMode(CENTER);
+    image(leaf, fulla.x, fulla.y, 40, 40); // Tamaño ajustable
+  }
+}
+
+
 PVector p[];//array de vectores para el salto
+PVector pLeaf[];
+
 
 //PLAYER SPRITES
 PImage toddR;
@@ -161,6 +228,8 @@ void setup()
   toddL = loadImage("leftIdle.png");
   toddChargingR = loadImage("rightPrepared.png");
   toddChargingL = loadImage("leftPrepared.png");
+  
+  leaf = loadImage("leaf.png");
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;
@@ -223,6 +292,10 @@ void setup()
   obsSizeY3 = new float[4];
   
   p = new PVector[4];
+  pLeaf = new PVector[4];
+  
+  cBezierFulla = new curva(pLeaf);
+  //fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
   
   // Ventana
   size(500, 500);

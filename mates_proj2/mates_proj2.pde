@@ -30,6 +30,11 @@ curva jump;
 
 float jumpY;
 
+//Variable canvi de skin amb les LUTs
+PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue;
+PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold;
+int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
+
 //Varaibles Fulla
 curva cBezierFulla;
 PImage leaf;
@@ -180,6 +185,57 @@ void pinta_fulla() {
   }
 }
 
+void aplicarFiltreBlau(PImage sprite) {
+for (int i = 0; i < sprite.pixels.length; i++) {
+    color pixel = sprite.pixels[i];
+    float alpha = alpha(pixel);
+    
+    if (alpha > 0) {
+      float r = red(pixel);
+      float g = green(pixel);
+      float b = blue(pixel);
+      
+      // Fórmula para tono amarillo (reduce azul, aumenta rojo/verde)
+      float nuevoR = r * 0.9;    // Aumenta componente roja
+      float nuevoG = g * 0.9;    // Aumenta componente verde
+      float nuevoB = b * 2.5;    // Reduce componente azul
+      
+      sprite.pixels[i] = color(
+        constrain(nuevoR, 0, 255),
+        constrain(nuevoG, 0, 255),
+        constrain(nuevoB, 0, 255),
+        alpha
+      );
+    }
+  }
+}
+
+// Nuevo filtro amarillo
+void aplicarFiltreGold(PImage sprite) {
+  for (int i = 0; i < sprite.pixels.length; i++) {
+    color pixel = sprite.pixels[i];
+    float alpha = alpha(pixel);
+    
+    if (alpha > 0) {
+      float r = red(pixel);
+      float g = green(pixel);
+      float b = blue(pixel);
+      
+      // Fórmula para tono amarillo (reduce azul, aumenta rojo/verde)
+      float nuevoR = r * 2.7;    // Aumenta componente roja
+      float nuevoG = g * 2.3;    // Aumenta componente verde
+      float nuevoB = b * 1.4;    // Reduce componente azul
+      
+      sprite.pixels[i] = color(
+        constrain(nuevoR, 0, 255),
+        constrain(nuevoG, 0, 255),
+        constrain(nuevoB, 0, 255),
+        alpha
+      );
+    }
+  }
+//ToddLGold, ToddRChargingGold, ToddLChargingGold;
+}
 
 PVector p[];//array de vectores para el salto
 PVector pLeaf[];
@@ -223,11 +279,21 @@ void setup()
   
   imageMode(CENTER);
   rectMode(CENTER);
-  
+  //Set imatges del player
   toddR = loadImage("rightIdle.png");
   toddL = loadImage("leftIdle.png");
   toddChargingR = loadImage("rightPrepared.png");
   toddChargingL = loadImage("leftPrepared.png");
+  
+  //Set imatges del player a les seves skins per despres canviar-les amb les LUT
+  ToddRBlue = loadImage("rightIdle.png");
+  ToddLBlue = loadImage("leftIdle.png");
+  ToddRChargingBlue = loadImage("rightPrepared.png");
+  ToddLChargingBlue = loadImage("leftPrepared.png");
+  ToddRGold = loadImage("rightIdle.png");
+  ToddLGold = loadImage("leftIdle.png");
+  ToddRChargingGold = loadImage("rightPrepared.png");
+  ToddLChargingGold = loadImage("leftPrepared.png");
   
   leaf = loadImage("leaf.png");
   
@@ -296,6 +362,18 @@ void setup()
   
   cBezierFulla = new curva(pLeaf);
   //fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
+ 
+  aplicarFiltreBlau(ToddRBlue);
+  aplicarFiltreBlau(ToddLBlue);
+  aplicarFiltreBlau(ToddRChargingBlue);
+  aplicarFiltreBlau(ToddLChargingBlue);
+  
+  aplicarFiltreGold(ToddRGold);
+  aplicarFiltreGold(ToddLGold);
+  aplicarFiltreGold(ToddRChargingGold);
+  aplicarFiltreGold(ToddLChargingGold);
+
+
   
   // Ventana
   size(500, 500);
@@ -364,22 +442,66 @@ void draw()
   {
     if (playerLook == 1)
     {
-      image(toddChargingR, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddChargingR, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddRChargingBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddRChargingGold, playerPos.x, playerPos.y);
+      }
     }
     else
     {
-      image(toddChargingL, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddChargingL, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddLChargingBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddLChargingGold, playerPos.x, playerPos.y);
+      }
     }
   }
   else
   {
     if (playerLook == 1)
     {
-      image(toddR, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddR, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddRBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddRGold, playerPos.x, playerPos.y);
+      }    
     }
     else
     {
-      image(toddL, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddL, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddLBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddLGold, playerPos.x, playerPos.y);
+      }
     }
   }
   
@@ -438,7 +560,14 @@ void keyPressed()
   {     
     charging = true;
   }
-
+  
+  //Cal clicar els nº 1, 2, 3 per poder canviar la skin
+  if (key == '1')
+    skinMode = 1;
+  if (key == '2') 
+    skinMode = 2;
+  if (key == '3') 
+    skinMode = 3;
 }
 
 void keyReleased()

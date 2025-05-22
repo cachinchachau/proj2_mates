@@ -468,36 +468,40 @@ void draw()
   
   
   //RENDERING
+  
+  pushMatrix();
+  translate(playerPos.x, playerPos.y); // Mover al centro
+  
   if (charging)
   {
     if (playerLook == 1)
     {
       if(skinMode == 1)
       {
-        image(toddChargingR, playerPos.x, playerPos.y);
+        image(toddChargingR, 0, 0);
       }
       else if(skinMode == 2)
       {
-        image(ToddRChargingBlue, playerPos.x, playerPos.y);
+        image(ToddRChargingBlue, 0, 0);
       }
       else if(skinMode == 3)
       {
-        image(ToddRChargingGold, playerPos.x, playerPos.y);
+        image(ToddRChargingGold, 0, 0);
       }
     }
     else
     {
       if(skinMode == 1)
       {
-        image(toddChargingL, playerPos.x, playerPos.y);
+        image(toddChargingL, 0, 0);
       }
       else if(skinMode == 2)
       {
-        image(ToddLChargingBlue, playerPos.x, playerPos.y);
+        image(ToddLChargingBlue, 0, 0);
       }
       else if(skinMode == 3)
       {
-        image(ToddLChargingGold, playerPos.x, playerPos.y);
+        image(ToddLChargingGold, 0, 0);
       }
     }
   }
@@ -507,38 +511,37 @@ void draw()
     {
       if(skinMode == 1)
       {
-        image(toddR, playerPos.x, playerPos.y);
+        image(toddR, 0, 0);
       }
       else if(skinMode == 2)
       {
-        image(ToddRBlue, playerPos.x, playerPos.y);
+        image(ToddRBlue, 0, 0);
       }
       else if(skinMode == 3)
       {
-        image(ToddRGold, playerPos.x, playerPos.y);
+        image(ToddRGold, 0, 0);
       }    
     }
     else
     {
       if(skinMode == 1)
       {
-        image(toddL, playerPos.x, playerPos.y);
+        image(toddL, 0, 0);
       }
       else if(skinMode == 2)
       {
-        image(ToddLBlue, playerPos.x, playerPos.y);
+        image(ToddLBlue, 0, 0);
       }
       else if(skinMode == 3)
       {
-        image(ToddLGold, playerPos.x, playerPos.y);
+        image(ToddLGold, 0, 0);
       }
     }
   }
   else
   {
     
-    pushMatrix();
-    translate(playerPos.x, playerPos.y); // Mover al centro
+
     rotate(angle); // Rotar
     
     if (playerLook == 1)
@@ -573,10 +576,11 @@ void draw()
     }
     
     angle += 0.1;
-    popMatrix();
+    
     
   }
   
+  popMatrix();
   
   fill(111, 255, 80);
   stroke(111, 255, 80);

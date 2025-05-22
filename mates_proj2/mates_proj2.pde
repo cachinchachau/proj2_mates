@@ -597,7 +597,7 @@ void keyPressed()
       break;
   }
   
-  if (key == ' ' && !isJumping && !charging) 
+  if (key == ' ' && !isJumping && !charging && isGrounded()) 
   {     
     charging = true;
   }
@@ -628,7 +628,7 @@ void keyReleased()
   if (key == ' ')
   {
     
-    if (!isJumping)
+    if (!isJumping && isGrounded())
     {
       jump();
     }
@@ -857,4 +857,50 @@ void changeRoom(int direction) {
   }
   
   changingRoom = false;
+}
+
+boolean isGrounded() {
+  // Player's bottom edge position
+  float playerBottom = playerPos.y + playerSize/2;
+  
+  // Small threshold to allow for minor floating point inaccuracies
+  float groundThreshold = 2.0;
+  
+  // Check collision with all terrain objects in current room
+  switch(room) {
+    case 1:
+      return checkGroundedWithTerrain(obsX1, obsY1, obsSizeX1, obsSizeY1, playerBottom, groundThreshold);
+    case 2:
+      return checkGroundedWithTerrain(obsX2, obsY2, obsSizeX2, obsSizeY2, playerBottom, groundThreshold);
+    case 3:
+      return checkGroundedWithTerrain(obsX3, obsY3, obsSizeX3, obsSizeY3, playerBottom, groundThreshold);
+    default:
+      return false;
+  }
+}
+
+boolean checkGroundedWithTerrain(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY, 
+                                float playerBottom, float threshold) {
+  float pL = playerPos.x - playerSize/2;
+  float pR = playerPos.x + playerSize/2;
+  
+  for (int i = 0; i < numTerr; i++) {
+    float obsT = obsY[i] - obsSizeY[i]/2; // Top of obstacle
+    float obsL = obsX[i] - obsSizeX[i]/2;
+    float obsR = obsX[i] + obsSizeX[i]/2;
+    
+    // Check if player is within X bounds of obstacle and just above the top surface
+    if (pR > obsL && pL < obsR && 
+        playerBottom >= obsT - threshold && 
+        playerBottom <= obsT + threshold) {
+      return true;
+    }
+  }
+  
+  // Also check if player is at bottom of screen (if that counts as ground)
+  if (playerBottom >= height - threshold && room == 1) {
+    return true;
+  }
+  
+  return false;
 }

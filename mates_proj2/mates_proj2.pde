@@ -30,6 +30,8 @@ curva jump;
 
 float jumpY;
 
+float angle = 0;
+
 //Variable canvi de skin amb les LUTs
 PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue;
 PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold;
@@ -254,6 +256,8 @@ PImage toddR;
 PImage toddL;
 PImage toddChargingR;
 PImage toddChargingL;
+PImage toddJumpR;
+PImage toddJumpL;
 
 
 //TERRENY VAR
@@ -292,6 +296,8 @@ void setup()
   toddL = loadImage("leftIdle.png");
   toddChargingR = loadImage("rightPrepared.png");
   toddChargingL = loadImage("leftPrepared.png");
+  toddJumpR = loadImage("rightJumping.png");
+  toddJumpL = loadImage("leftJumping.png");
   
   //Set imatges del player a les seves skins per despres canviar-les amb les LUT
   ToddRBlue = loadImage("rightIdle.png");
@@ -302,6 +308,7 @@ void setup()
   ToddLGold = loadImage("leftIdle.png");
   ToddRChargingGold = loadImage("rightPrepared.png");
   ToddLChargingGold = loadImage("leftPrepared.png");
+
   
   leaf = loadImage("leaf.png");
   
@@ -479,7 +486,7 @@ void draw()
       }
     }
   }
-  else
+  else if (!isJumping)
   {
     if (playerLook == 1)
     {
@@ -512,6 +519,27 @@ void draw()
       }
     }
   }
+  else
+  {
+    
+    pushMatrix();
+    translate(playerPos.x, playerPos.y); // Mover al centro
+    rotate(angle); // Rotar
+    
+    if (playerLook == 1)
+    {
+       image(toddJumpR, 0, 0);
+    }
+    else
+    {
+      image(toddJumpL, 0, 0);
+    }
+    
+    angle += 0.1;
+    popMatrix();
+    
+  }
+  
   
   fill(111, 255, 80);
   stroke(111, 255, 80);
@@ -716,6 +744,7 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
         isJumping = false;
         u = 0;
         onGround = true;
+        angle = 0;
       }
       // Hitting bottom of platform
       else if (pT < obsB && pB > obsB && playerSpeedY >= 0) {

@@ -186,55 +186,63 @@ void pinta_fulla() {
 }
 
 void aplicarFiltreBlau(PImage sprite) {
-for (int i = 0; i < sprite.pixels.length; i++) {
-    color pixel = sprite.pixels[i];
-    float alpha = alpha(pixel);
-    
-    if (alpha > 0) {
-      float r = red(pixel);
-      float g = green(pixel);
-      float b = blue(pixel);
+  // Recorrer todos los píxeles
+  for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
+    for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
+      // 1) Obtener el color del píxel actual
+      color pixel = sprite.get(x, y);
+      float alpha = alpha(pixel);
       
-      // Fórmula para tono amarillo (reduce azul, aumenta rojo/verde)
-      float nuevoR = r * 0.9;    // Aumenta componente roja
-      float nuevoG = g * 0.9;    // Aumenta componente verde
-      float nuevoB = b * 2.5;    // Reduce componente azul
-      
-      sprite.pixels[i] = color(
-        constrain(nuevoR, 0, 255),
-        constrain(nuevoG, 0, 255),
-        constrain(nuevoB, 0, 255),
-        alpha
-      );
+      // Solo procesar píxeles no transparentes
+      if(alpha > 0) {
+        // 2) Extraer componentes y aplicar fórmula del filtro azul
+        float r = red(pixel) * 0.9;    // Reduce componente roja
+        float g = green(pixel) * 0.9;   // Reduce componente verde
+        float b = blue(pixel) * 2.5;    // Aumenta componente azul
+        
+        // 3) Crear nuevo color con los valores ajustados
+        color nuevoColor = color(
+          constrain(r, 0, 255),
+          constrain(g, 0, 255),
+          constrain(b, 0, 255),
+          alpha
+        );
+        
+        // 4) Asignar el nuevo color al píxel
+        sprite.set(x, y, nuevoColor);
+      }
     }
   }
 }
 
 // Nuevo filtro amarillo
 void aplicarFiltreGold(PImage sprite) {
-  for (int i = 0; i < sprite.pixels.length; i++) {
-    color pixel = sprite.pixels[i];
-    float alpha = alpha(pixel);
-    
-    if (alpha > 0) {
-      float r = red(pixel);
-      float g = green(pixel);
-      float b = blue(pixel);
+ for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
+    for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
+      // 1) Obtener el color del píxel actual
+      color pixel = sprite.get(x, y);
+      float alpha = alpha(pixel);
       
-      // Fórmula para tono amarillo (reduce azul, aumenta rojo/verde)
-      float nuevoR = r * 2.7;    // Aumenta componente roja
-      float nuevoG = g * 2.3;    // Aumenta componente verde
-      float nuevoB = b * 1.4;    // Reduce componente azul
-      
-      sprite.pixels[i] = color(
-        constrain(nuevoR, 0, 255),
-        constrain(nuevoG, 0, 255),
-        constrain(nuevoB, 0, 255),
-        alpha
-      );
+      // Solo procesar píxeles no transparentes
+      if(alpha > 0) {
+        // 2) Extraer componentes y aplicar fórmula del filtro azul
+        float r = red(pixel) * 2.7;    // Reduce componente roja
+        float g = green(pixel) * 2.3;   // Reduce componente verde
+        float b = blue(pixel) * 1.4;    // Aumenta componente azul
+        
+        // 3) Crear nuevo color con los valores ajustados
+        color nuevoColor = color(
+          constrain(r, 0, 255),
+          constrain(g, 0, 255),
+          constrain(b, 0, 255),
+          alpha
+        );
+        
+        // 4) Asignar el nuevo color al píxel
+        sprite.set(x, y, nuevoColor);
+      }
     }
   }
-//ToddLGold, ToddRChargingGold, ToddLChargingGold;
 }
 
 PVector p[];//array de vectores para el salto

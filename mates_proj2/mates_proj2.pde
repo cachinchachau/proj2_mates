@@ -11,7 +11,7 @@ PVector playerPos;
 int playerSize = 45;
 
 float playerSpeedX = 2;
-float playerSpeedY = -3;
+float playerSpeedY = -5;
 
 int playerDir;
 int playerLook;
@@ -797,7 +797,7 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
   
   // Apply gravity if not on ground
   if (!onGround && !isJumping && !charging) {
-    playerSpeedY = -3;
+    playerSpeedY = -5;
   }
 }
 

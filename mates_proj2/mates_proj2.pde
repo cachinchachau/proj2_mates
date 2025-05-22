@@ -30,11 +30,6 @@ curva jump;
 
 float jumpY;
 
-//Variable canvi de skin amb les LUTs
-PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue;
-PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold;
-int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
-
 //Varaibles Fulla
 curva cBezierFulla;
 PImage leaf;
@@ -255,8 +250,15 @@ PImage toddL;
 PImage toddChargingR;
 PImage toddChargingL;
 
+//Variables de imatges pel canvi de skin amb les LUTs
+PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue;
+PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold;
+int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
+
 
 //TERRENY VAR
+
+PImage fondo;
 
 int room = 1;
 
@@ -304,6 +306,8 @@ void setup()
   ToddLChargingGold = loadImage("leftPrepared.png");
   
   leaf = loadImage("leaf.png");
+  fondo = loadImage("fondo.png");
+  fondo.resize(width,height);
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;
@@ -392,8 +396,8 @@ void setup()
 
 void draw()
 {
-  
-  background(176, 238, 247);
+  image(fondo, width/2, height/2);
+  //background(176, 238, 247);
   
   //UPDATE
   

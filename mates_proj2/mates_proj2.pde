@@ -256,8 +256,8 @@ PImage toddJumpR;
 PImage toddJumpL;
 
 //Variables de imatges pel canvi de skin amb les LUTs
-PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue;
-PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold;
+PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue, toddJumpRBlue, toddJumpLBlue;
+PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold, toddJumpRGold, toddJumpLGold;
 int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
 
 
@@ -307,10 +307,17 @@ void setup()
   ToddLBlue = loadImage("leftIdle.png");
   ToddRChargingBlue = loadImage("rightPrepared.png");
   ToddLChargingBlue = loadImage("leftPrepared.png");
+  toddJumpLBlue = loadImage("leftJumping.png");
+  toddJumpRBlue = loadImage("rightJumping.png");
+
+  
   ToddRGold = loadImage("rightIdle.png");
   ToddLGold = loadImage("leftIdle.png");
   ToddRChargingGold = loadImage("rightPrepared.png");
   ToddLChargingGold = loadImage("leftPrepared.png");
+  toddJumpLGold = loadImage("leftJumping.png");
+  toddJumpRGold = loadImage("rightJumping.png");
+
   
   fondo = loadImage("fondo.png");
   fondo.resize(width,height);
@@ -387,11 +394,18 @@ void setup()
   aplicarFiltreBlau(ToddLBlue);
   aplicarFiltreBlau(ToddRChargingBlue);
   aplicarFiltreBlau(ToddLChargingBlue);
-  
+  aplicarFiltreBlau(toddJumpLBlue);
+  aplicarFiltreBlau(toddJumpRBlue);
+
+
   aplicarFiltreGold(ToddRGold);
   aplicarFiltreGold(ToddLGold);
   aplicarFiltreGold(ToddRChargingGold);
   aplicarFiltreGold(ToddLChargingGold);
+  aplicarFiltreGold(toddJumpLGold);
+  aplicarFiltreGold(toddJumpRGold);
+
+
 
 
   
@@ -533,11 +547,33 @@ void draw()
     
     if (playerLook == 1)
     {
-       image(toddJumpR, 0, 0);
+      if(skinMode == 1)
+      {
+        image(toddJumpR, 0, 0);
+      }
+      else if(skinMode == 2)
+      {
+        image(toddJumpRBlue, 0, 0);
+      }
+      else if(skinMode == 3)
+      {
+        image(toddJumpRGold, 0, 0);
+      } 
     }
     else
     {
-      image(toddJumpL, 0, 0);
+      if(skinMode == 1)
+      {
+        image(toddJumpL, 0, 0);
+      }
+      else if(skinMode == 2)
+      {
+        image(toddJumpLBlue, 0, 0);
+      }
+      else if(skinMode == 3)
+      {
+        image(toddJumpLGold, 0, 0);
+      } 
     }
     
     angle += 0.1;

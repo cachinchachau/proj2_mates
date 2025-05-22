@@ -404,16 +404,6 @@ void setup()
   aplicarFiltreGold(ToddLChargingGold);
   aplicarFiltreGold(toddJumpLGold);
   aplicarFiltreGold(toddJumpRGold);
-
-
-
-
-  
-  // Ventana
-  size(500, 500);
-  // Inventarnos 1a curva --> p(u)
-  // Invertarnos sus puntos de control
-    
 }
 
 void draw()

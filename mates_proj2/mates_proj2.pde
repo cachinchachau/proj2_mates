@@ -178,7 +178,7 @@ void calNovaPosFulla() {
 void pinta_fulla() {
   if (fulla != null && leaf != null) {
     imageMode(CENTER);
-    image(leaf, fulla.x, fulla.y, 40, 40); // Tamaño ajustable
+    image(leaf, fulla.x, fulla.y); // Tamaño ajustable
   }
 }
 
@@ -318,11 +318,20 @@ void setup()
   toddJumpLGold = loadImage("leftJumping.png");
   toddJumpRGold = loadImage("rightJumping.png");
 
-  
+ 
   fondo = loadImage("fondo.png");
   fondo.resize(width,height);
   
   leaf = loadImage("leaf.png");
+  pLeaf = new PVector[4];
+  pLeaf[0] = new PVector(0, 300);
+  pLeaf[1] = new PVector(100, 200);
+  pLeaf[2] = new PVector(200, 400);
+  pLeaf[3] = new PVector(300, 500);
+  cBezierFulla = new curva(pLeaf);
+  fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
+  
+  
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;
@@ -385,10 +394,6 @@ void setup()
   obsSizeY3 = new float[4];
   
   p = new PVector[4];
-  pLeaf = new PVector[4];
-  
-  cBezierFulla = new curva(pLeaf);
-  //fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
  
   aplicarFiltreBlau(ToddRBlue);
   aplicarFiltreBlau(ToddLBlue);
@@ -412,7 +417,8 @@ void draw()
   image(fondo, width/2, height/2);
   
   //UPDATE
-  
+  calNovaPosFulla();
+  pinta_fulla();
   if (charging)//CARGANDO
   {
     charge++;

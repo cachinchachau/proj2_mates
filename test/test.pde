@@ -1,8 +1,14 @@
+//enum per revisar cap a quin costat sprite del personatge mira i així saber cap a on ha de saltar
+enum Looking
+{
+  LEFT,
+  RIGHT
+}
 
 //PLAYER VAR
 PVector playerPos;
 
-int playerSize = 32;
+int playerSize = 45;
 
 float playerSpeedX = 2;
 float playerSpeedY = -3;
@@ -14,10 +20,22 @@ boolean charging = false;
 boolean isJumping = false;
 
 int charge = 0;
+float jumpTime = 0;
 
 float u = 0.0;
 
+Looking plLook = Looking.LEFT;
+
 curva jump;
+
+float jumpY;
+
+//Varaibles Fulla
+curva cBezierFulla;
+PImage leaf;
+float aux = 0.0; // Parámetro "aux" per a recorrer la curva
+PVector fulla; //Objecte que recorrerà la curva
+
 
 class curva {
   // Atributos
@@ -74,7 +92,31 @@ class curva {
       +4.5*puntos_de_ctrl[3].y;
   }
 
-  void pintar_curva() {
+  // Método para calcular los coeficientes de Bézier
+  void calcular_coefsBezier() {
+    // C0 = P0
+    coefs[0].set(puntos_de_ctrl[0]);
+    
+    // C1 = -3P0 + 3P1
+    coefs[1].set(
+      -3 * puntos_de_ctrl[0].x + 3 * puntos_de_ctrl[1].x,
+      -3 * puntos_de_ctrl[0].y + 3 * puntos_de_ctrl[1].y
+    );
+    
+    // C2 = 3P0 - 6P1 + 3P2
+    coefs[2].set(
+      3 * puntos_de_ctrl[0].x - 6 * puntos_de_ctrl[1].x + 3 * puntos_de_ctrl[2].x,
+      3 * puntos_de_ctrl[0].y - 6 * puntos_de_ctrl[1].y + 3 * puntos_de_ctrl[2].y
+    );
+    
+    // C3 = -P0 + 3P1 - 3P2 + P3
+    coefs[3].set(
+      -puntos_de_ctrl[0].x + 3 * puntos_de_ctrl[1].x - 3 * puntos_de_ctrl[2].x + puntos_de_ctrl[3].x,
+      -puntos_de_ctrl[0].y + 3 * puntos_de_ctrl[1].y - 3 * puntos_de_ctrl[2].y + puntos_de_ctrl[3].y
+    );
+  }
+
+  void pintar_curvaSalt() {
     float x, y;
     // Pintara los puntos de control
     // Tambien pintara a la curva
@@ -96,7 +138,7 @@ class curva {
     }
   }
   
-  void pintar_puntos_de_ctrl() {
+  void pintar_puntos_de_ctrlSalt() {
     strokeWeight(15.0);
     stroke(255, 0, 0);
     for (int i=0; i<4; i++) {
@@ -105,7 +147,102 @@ class curva {
   }
 }
 
+// Calcula la nova posició de la fulla en la curva
+void calNovaPosFulla() {
+  if (fulla == null || cBezierFulla == null) return;
+  
+  // Calcul de la posició en la curva
+  float u = aux;
+  float x = cBezierFulla.coefs[0].x +
+            cBezierFulla.coefs[1].x * u +
+            cBezierFulla.coefs[2].x * u * u +
+            cBezierFulla.coefs[3].x * u * u * u;
+            
+  float y = cBezierFulla.coefs[0].y +
+            cBezierFulla.coefs[1].y * u +
+            cBezierFulla.coefs[2].y * u * u +
+            cBezierFulla.coefs[3].y * u * u * u;
+  
+  fulla.set(x, y);
+  
+  // Incrementar el parámetro "aux"
+  aux += 0.01;
+  if (aux >= 1.0) {
+    aux = 0.0; // Reiniciar
+  }
+}
+
+// Dibuja la hoja fulla
+void pinta_fulla() {
+  if (fulla != null && leaf != null) {
+    imageMode(CENTER);
+    image(leaf, fulla.x, fulla.y, 40, 40); // Tamaño ajustable
+  }
+}
+
+void aplicarFiltreBlau(PImage sprite) {
+  // Recorrer todos los píxeles
+  for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
+    for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
+      // 1) Obtener el color del píxel actual
+      color pixel = sprite.get(x, y);
+      float alpha = alpha(pixel);
+      
+      // Solo procesar píxeles no transparentes
+      if(alpha > 0) {
+        // 2) Extraer componentes y aplicar fórmula del filtro azul
+        float r = red(pixel) * 0.9;    // Reduce componente roja
+        float g = green(pixel) * 0.9;   // Reduce componente verde
+        float b = blue(pixel) * 2.5;    // Aumenta componente azul
+        
+        // 3) Crear nuevo color con los valores ajustados
+        color nuevoColor = color(
+          constrain(r, 0, 255),
+          constrain(g, 0, 255),
+          constrain(b, 0, 255),
+          alpha
+        );
+        
+        // 4) Asignar el nuevo color al píxel
+        sprite.set(x, y, nuevoColor);
+      }
+    }
+  }
+}
+
+// Nuevo filtro amarillo
+void aplicarFiltreGold(PImage sprite) {
+ for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
+    for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
+      // 1) Obtener el color del píxel actual
+      color pixel = sprite.get(x, y);
+      float alpha = alpha(pixel);
+      
+      // Solo procesar píxeles no transparentes
+      if(alpha > 0) {
+        // 2) Extraer componentes y aplicar fórmula del filtro azul
+        float r = red(pixel) * 2.7;    // Reduce componente roja
+        float g = green(pixel) * 2.3;   // Reduce componente verde
+        float b = blue(pixel) * 1.4;    // Aumenta componente azul
+        
+        // 3) Crear nuevo color con los valores ajustados
+        color nuevoColor = color(
+          constrain(r, 0, 255),
+          constrain(g, 0, 255),
+          constrain(b, 0, 255),
+          alpha
+        );
+        
+        // 4) Asignar el nuevo color al píxel
+        sprite.set(x, y, nuevoColor);
+      }
+    }
+  }
+}
+
 PVector p[];//array de vectores para el salto
+PVector pLeaf[];
+
 
 //PLAYER SPRITES
 PImage toddR;
@@ -113,13 +250,37 @@ PImage toddL;
 PImage toddChargingR;
 PImage toddChargingL;
 
+//Variables de imatges pel canvi de skin amb les LUTs
+PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue;
+PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold;
+int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
+
 
 //TERRENY VAR
 
-float obsX;//array de posicions x del terreny
-float obsY;//array de posicions y del terreny
-float obsSizeX;// tamany X dels obstacles
-float obsSizeY;// tamany Y dels obstacles
+PImage fondo;
+
+int room = 1;
+
+boolean changingRoom = false;
+float jumpSpeedWhenChanged = 0;
+
+float obsX1[];//array de posicions x del terreny sala 1
+float obsY1[];//array de posicions y del terreny sala 1
+float obsSizeX1[];// tamany X dels obstacles sala 1
+float obsSizeY1[];// tamany Y dels obstacles sala 1
+
+float obsX2[];//array de posicions x del terreny sala 2
+float obsY2[];//array de posicions y del terreny sala 2
+float obsSizeX2[];// tamany X dels obstacles sala 2
+float obsSizeY2[];// tamany Y dels obstacles sala 2
+
+float obsX3[];//array de posicions x del terreny sala 3
+float obsY3[];//array de posicions y del terreny sala 3
+float obsSizeX3[];// tamany X dels obstacles sala 3
+float obsSizeY3[];// tamany Y dels obstacles sala 3
+
+int numTerr;
 
 void setup()
 {
@@ -128,21 +289,103 @@ void setup()
   
   imageMode(CENTER);
   rectMode(CENTER);
+  //Set imatges del player
+  toddR = loadImage("rightIdle.png");
+  toddL = loadImage("leftIdle.png");
+  toddChargingR = loadImage("rightPrepared.png");
+  toddChargingL = loadImage("leftPrepared.png");
   
-  toddR = loadImage("toddR.png");
-  toddL = loadImage("toddL.png");
-  toddChargingR = loadImage("toddChargingR.png");
-  toddChargingL = loadImage("toddChargingL.png");
+  //Set imatges del player a les seves skins per despres canviar-les amb les LUT
+  ToddRBlue = loadImage("rightIdle.png");
+  ToddLBlue = loadImage("leftIdle.png");
+  ToddRChargingBlue = loadImage("rightPrepared.png");
+  ToddLChargingBlue = loadImage("leftPrepared.png");
+  ToddRGold = loadImage("rightIdle.png");
+  ToddLGold = loadImage("leftIdle.png");
+  ToddRChargingGold = loadImage("rightPrepared.png");
+  ToddLChargingGold = loadImage("leftPrepared.png");
+  
+  leaf = loadImage("leaf.png");
+  fondo = loadImage("fondo.png");
+  fondo.resize(width,height);
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;
   
-  obsX = 250;
-  obsY = 450;
-  obsSizeX = 500;
-  obsSizeY = 100;
+  obsX1 = new float[4];
+  obsY1 = new float[4];
+  obsSizeX1 = new float[4];
+  obsSizeY1 = new float[4];
+  
+  numTerr = 4;
+  
+  obsX1[0] = 250;
+  obsY1[0] = 475;
+  obsSizeX1[0] = 500;
+  obsSizeY1[0] = 50;
+  
+  obsX1[1] = 62.5;
+  obsY1[1] = 400;
+  obsSizeX1[1] = 125;
+  obsSizeY1[1] = 200;
+  
+  obsX1[2] = 437.5;
+  obsY1[2] = 400;
+  obsSizeX1[2] = 125;
+  obsSizeY1[2] = 200;
+  
+  obsX1[3] = 250;
+  obsY1[3] = 175;
+  obsSizeX1[3] = 150;
+  obsSizeY1[3] = 50;
+  
+  obsX2 = new float[4];
+  obsY2 = new float[4];
+  obsSizeX2 = new float[4];
+  obsSizeY2 = new float[4];
+  
+  obsX2[0] = 50;
+  obsY2[0] = 485;
+  obsSizeX2[0] = 100;
+  obsSizeY2[0] = 50;
+  
+  obsX2[1] = 300;
+  obsY2[1] = 375;
+  obsSizeX2[1] = 100;
+  obsSizeY2[1] = 50;
+  
+  obsX2[2] = 450;
+  obsY2[2] = 250;
+  obsSizeX2[2] = 100;
+  obsSizeY2[2] = 50;
+  
+  obsX2[3] = 250;
+  obsY2[3] = 100;
+  obsSizeX2[3] = 150;
+  obsSizeY2[3] = 50;
+  
+  obsX3 = new float[4];
+  obsY3 = new float[4];
+  obsSizeX3 = new float[4];
+  obsSizeY3 = new float[4];
   
   p = new PVector[4];
+  pLeaf = new PVector[4];
+  
+  cBezierFulla = new curva(pLeaf);
+  //fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
+ 
+  aplicarFiltreBlau(ToddRBlue);
+  aplicarFiltreBlau(ToddLBlue);
+  aplicarFiltreBlau(ToddRChargingBlue);
+  aplicarFiltreBlau(ToddLChargingBlue);
+  
+  aplicarFiltreGold(ToddRGold);
+  aplicarFiltreGold(ToddLGold);
+  aplicarFiltreGold(ToddRChargingGold);
+  aplicarFiltreGold(ToddLChargingGold);
+
+
   
   // Ventana
   size(500, 500);
@@ -153,14 +396,19 @@ void setup()
 
 void draw()
 {
-  
-  background(0);
+  image(fondo, width/2, height/2);
+  //background(176, 238, 247);
   
   //UPDATE
   
   if (charging)//CARGANDO
   {
     charge++;
+    
+    if (charge >= 100)
+    {
+      jump();
+    }
   }
   else
   {
@@ -177,7 +425,28 @@ void draw()
   
   playerPos.y -= playerSpeedY;
   
-  checkPlayerCollY();
+  if (!changingRoom) {
+    if (playerPos.y < 0) { // Going up to next room
+      changeRoom(1);
+    } 
+    else if (playerPos.y > height && room > 1) { // Going down to previous room
+      changeRoom(-1);
+    }
+  }
+  
+  switch(room)
+  {
+    case 1:
+      checkPlayerColl(obsX1, obsY1, obsSizeX1, obsSizeY1);
+      break;
+    case 2:
+      checkPlayerColl(obsX2, obsY2, obsSizeX2, obsSizeY2);
+      break;
+    case 3:
+      checkPlayerColl(obsX3, obsY3, obsSizeX3, obsSizeY3);
+      break;
+  }
+  
   
   
   //RENDERING
@@ -185,78 +454,155 @@ void draw()
   {
     if (playerLook == 1)
     {
-      image(toddChargingR, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddChargingR, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddRChargingBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddRChargingGold, playerPos.x, playerPos.y);
+      }
     }
     else
     {
-      image(toddChargingL, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddChargingL, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddLChargingBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddLChargingGold, playerPos.x, playerPos.y);
+      }
     }
   }
   else
   {
     if (playerLook == 1)
     {
-      image(toddR, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddR, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddRBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddRGold, playerPos.x, playerPos.y);
+      }    
     }
     else
     {
-      image(toddL, playerPos.x, playerPos.y);
+      if(skinMode == 1)
+      {
+        image(toddL, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 2)
+      {
+        image(ToddLBlue, playerPos.x, playerPos.y);
+      }
+      else if(skinMode == 3)
+      {
+        image(ToddLGold, playerPos.x, playerPos.y);
+      }
     }
   }
   
   fill(111, 255, 80);
-  rect(250, 450, 500, 100);
+  stroke(111, 255, 80);
   
-  println(charge);
+  
+  switch(room)
+  {
+    case 1:
+      for (int i = 0; i < numTerr; i++)
+      {
+      rect(obsX1[i], obsY1[i], obsSizeX1[i], obsSizeY1[i]);
+      }
+      break;
+    case 2:
+      for (int i = 0; i < numTerr; i++)
+      {
+        rect(obsX2[i], obsY2[i], obsSizeX2[i], obsSizeY2[i]);
+      }
+      break;
+    case 3:
+      for (int i = 0; i < numTerr; i++)
+      {
+        rect(obsX3[i], obsY3[i], obsSizeX3[i], obsSizeY3[i]);
+      }
+      break;
+  }
+
+
+  
+  println(room);
 
 }
 
 //INPUTS
+
 void keyPressed()
 {
   
-  if (key == 'd' || key == 'D')
+  switch(keyCode)
   {
-      playerDir = 1;
-      playerLook = 1;
-  }
-  else if (key == 'a' || key == 'A')
-  {
+    case LEFT:
       playerDir = -1;
       playerLook = -1;
+      plLook = Looking.LEFT;
+      break;
+    case RIGHT:
+      playerDir = 1;
+      playerLook = 1;
+      plLook = Looking.RIGHT;
+      break;
   }
   
-  if (key == ' ' && isGrounded())
-  {
+  if (key == ' ' && !isJumping && !charging && isGrounded()) 
+  {     
     charging = true;
   }
   
+  //Cal clicar els nº 1, 2, 3 per poder canviar la skin
+  if (key == '1')
+    skinMode = 1;
+  if (key == '2') 
+    skinMode = 2;
+  if (key == '3') 
+    skinMode = 3;
 }
 
 void keyReleased()
 {
   
-  if (key == 'd' || key == 'D')
+  switch(keyCode)
   {
+    case LEFT:
       playerDir = 0;
-  }
-  else if (key == 'a' || key == 'A')
-  {
+      break;
+    case RIGHT:
       playerDir = 0;
+      break;
+    
   }
   
   if (key == ' ')
   {
-    charging = false;
-    isJumping = true;
     
-    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
-    p[1] = new PVector(playerPos.x + 50, playerPos.y - 100); // Y este es el P1
-    p[2] = new PVector(playerPos.x + 100, playerPos.y - 100); // El P2
-    p[3] = new PVector(playerPos.x + 150, playerPos.y); // P3
-  
-    jump = new curva(p);
-    jump.calcular_coefs();
+    if (!isJumping && isGrounded())
+    {
+      jump();
+    }
     
   }
 
@@ -264,47 +610,159 @@ void keyReleased()
 
 //FUNCTIONS
 
-void checkPlayerCollY()
+void jump()
 {
-  // calc pj limits
+  
+  jumpY = playerPos.y;
+  
+  if (isJumping)
+    return;
+  charging = false;
+  isJumping = true;
+  
+  u = 0.0;
+  
+  jumpTime = 1.5/charge;
+  
+  println("jump time is: " + jumpTime);
+  
+  jumpCalc();
+}
+
+void jumpCalc()
+{
+  
+  
+  if (playerDir == 0)
+  {
+    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x , playerPos.y - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x , playerPos.y - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x , playerPos.y); // P3
+  }
+  else if (plLook == Looking.LEFT)
+  {
+    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x - (charge - (charge / 2.5)), playerPos.y - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x - (charge + (charge / 2.5)), playerPos.y - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x - charge * 2.5, playerPos.y); // P3
+  }
+  else
+  {
+    p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x + (charge - (charge / 2.5)), playerPos.y - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x + (charge + (charge / 2.5)), playerPos.y - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x + charge * 2.5, playerPos.y); // P3
+  }
+ 
+  jump = new curva(p);
+  jump.calcular_coefs();
+  
+}
+
+void jumpCalcSwitch()
+{
+  if (playerDir == 0)
+  {
+    p[0] = new PVector(playerPos.x,  height+jumpY); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x , height+jumpY - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x , height+jumpY - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x , height+jumpY); // P3
+  }
+  else if (plLook == Looking.LEFT)
+  {
+    p[0] = new PVector(playerPos.x, height+jumpY); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x - (charge - (charge / 2.5)), height+jumpY - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x - (charge + (charge / 2.5)), height+jumpY - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x - charge * 2.5, height+jumpY); // P3
+  }
+  else
+  {
+    p[0] = new PVector(playerPos.x, height+jumpY); // Este es el punto de ctrl P0
+    p[1] = new PVector(playerPos.x + (charge - (charge / 2.5)), height+jumpY - charge * 2); // Y este es el P1
+    p[2] = new PVector(playerPos.x + (charge + (charge / 2.5)), height+jumpY - charge * 2); // El P2
+    p[3] = new PVector(playerPos.x + charge * 2.5, height+jumpY); // P3
+  }
+ 
+  jump = new curva(p);
+  jump.calcular_coefs();
+  
+}
+
+void checkPlayerColl(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
+  // First check Y collisions (most important for standing)
+  checkPlayerCollY(obsX, obsY, obsSizeX, obsSizeY);
+  
+  // Then check X collisions
+  checkPlayerCollX(obsX, obsY, obsSizeX, obsSizeY);
+}
+
+void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
   float pT = playerPos.y - playerSize/2;
   float pB = playerPos.y + playerSize/2;
- 
-  float obsT = obsY - obsSizeY/2;
-  float obsB = obsY + obsSizeY/2;
- 
-  if(pB > obsT && pT < obsB) 
-  {
-    playerPos.y = obsT - playerSize/2; 
-    playerSpeedY = 0; 
-    isJumping = false;
-    u = 0;
-  }
-
-}
-
-void checkPlayerCollR()
-{
-  // calc pj limits
   float pL = playerPos.x - playerSize/2;
   float pR = playerPos.x + playerSize/2;
- 
-  float obsL = obsX - obsSizeX/2;
-  float obsR = obsX + obsSizeX/2;
- 
-  if(pR > obsL && pL < obsR) 
-  {
-    //moviment cap a fora del obstacle
+
+  boolean onGround = false;
+  
+  for (int i = 0; i < numTerr; i++) {
+    float obsT = obsY[i] - obsSizeY[i]/2;
+    float obsB = obsY[i] + obsSizeY[i]/2;
+    float obsL = obsX[i] - obsSizeX[i]/2;
+    float obsR = obsX[i] + obsSizeX[i]/2;
+    
+    // Check if player is within X bounds of obstacle
+    if (pR > obsL && pL < obsR) {
+      // Landing on top of platform
+      if (pB > obsT && pT < obsT && playerSpeedY <= 0) {
+        playerPos.y = obsT - playerSize/2;
+        playerSpeedY = 0;
+        isJumping = false;
+        u = 0;
+        onGround = true;
+      }
+      // Hitting bottom of platform
+      else if (pT < obsB && pB > obsB && playerSpeedY >= 0) {
+        playerPos.y = obsB + playerSize/2;
+        playerSpeedY = 0;
+      }
+    }
   }
-
+  
+  // Apply gravity if not on ground
+  if (!onGround && !isJumping && !charging) {
+    playerSpeedY = -3;
+  }
 }
 
-boolean isGrounded() {
-  float pBottom = playerPos.y + playerSize/2;
-  float obsTop = obsY - obsSizeY/2;
-  return (abs(pBottom - obsTop) < 1); // Close enough to ground
-}
+void checkPlayerCollX(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
+  float pT = playerPos.y - playerSize/2;
+  float pB = playerPos.y + playerSize/2;
+  float pL = playerPos.x - playerSize/2;
+  float pR = playerPos.x + playerSize/2;
 
+  for (int i = 0; i < numTerr; i++) {
+    float obsT = obsY[i] - obsSizeY[i]/2;
+    float obsB = obsY[i] + obsSizeY[i]/2;
+    float obsL = obsX[i] - obsSizeX[i]/2;
+    float obsR = obsX[i] + obsSizeX[i]/2;
+    
+    // Check if player is within Y bounds of obstacle
+    if (pB > obsT && pT < obsB) {
+      // Left side collision
+      if (pR > obsR && pL < obsR) {
+        playerPos.x = obsR + playerSize/2 + 1;
+      }
+      // Right side collision
+      else if (pL < obsL && pR > obsL) {
+        playerPos.x = obsL - playerSize/2 - 1;
+      }
+    }
+  }
+  
+  // Screen boundaries
+  playerPos.x = constrain(playerPos.x, playerSize/2, width - playerSize/2);
+}
 float getMagnitude(PVector v)
 {
   return sqrt(v.x*v.x + v.y*v.y);
@@ -323,22 +781,96 @@ void normalizePV(PVector v)
 
 void playerJumpCalc()
 {
+  if (u >= 1.0) {
+    u = 1.0; // Clamp to avoid overshooting
+    isJumping = false;
+  }
   // Segun el estado, nos movemos por una u otra curva
   // Cuando el parametro "u" sea >= 1.0, toca cambiar de curva
-    playerPos.x = jump.coefs[0].x +
-    jump.coefs[1].x * u +
-    jump.coefs[2].x * u * u +
-    jump.coefs[3].x * u * u * u;
-    playerPos.y = jump.coefs[0].y +
-    jump.coefs[1].y * u +
-    jump.coefs[2].y * u * u +
-    jump.coefs[3].y * u * u * u;
+    playerPos.x = jump.coefs[0].x + jump.coefs[1].x * u 
+               + jump.coefs[2].x * u * u + jump.coefs[3].x * u * u * u;
+    playerPos.y = jump.coefs[0].y + jump.coefs[1].y * u 
+               + jump.coefs[2].y * u * u + jump.coefs[3].y * u * u * u;
     
-    float w = 0.01;
+    float w = jumpTime;
     
     u += w;
     if (u >= 0.5){
-      w = -0.01;
+      w = -jumpTime;
     }
     
+}
+
+void changeRoom(int direction) {
+  changingRoom = true;
+  
+  // 1. Remember the jump speed if jumping
+  if (isJumping) {
+    jumpSpeedWhenChanged = jumpTime;
+  }
+  
+  // 2. Change room and reposition player
+  room += direction;
+  if (direction > 0) {
+    playerPos.y = height - 10; // Near bottom of new room
+  } else {
+    playerPos.y = 10; 
+    isJumping = false;
+  }
+  
+  // 3. If jumping, continue with similar motion
+  if (isJumping) {
+    // Keep same X direction but reduce jump power slightly
+    float power = jumpSpeedWhenChanged * 0.9; 
+    jumpTime = power;
+    jumpCalcSwitch(); // Recalculate curve in new position
+  }
+  
+  changingRoom = false;
+}
+
+boolean isGrounded() {
+  // Player's bottom edge position
+  float playerBottom = playerPos.y + playerSize/2;
+  
+  // Small threshold to allow for minor floating point inaccuracies
+  float groundThreshold = 2.0;
+  
+  // Check collision with all terrain objects in current room
+  switch(room) {
+    case 1:
+      return checkGroundedWithTerrain(obsX1, obsY1, obsSizeX1, obsSizeY1, playerBottom, groundThreshold);
+    case 2:
+      return checkGroundedWithTerrain(obsX2, obsY2, obsSizeX2, obsSizeY2, playerBottom, groundThreshold);
+    case 3:
+      return checkGroundedWithTerrain(obsX3, obsY3, obsSizeX3, obsSizeY3, playerBottom, groundThreshold);
+    default:
+      return false;
+  }
+}
+
+boolean checkGroundedWithTerrain(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY, 
+                                float playerBottom, float threshold) {
+  float pL = playerPos.x - playerSize/2;
+  float pR = playerPos.x + playerSize/2;
+  
+  for (int i = 0; i < numTerr; i++) {
+    float obsT = obsY[i] - obsSizeY[i]/2; // Top of obstacle
+    float obsL = obsX[i] - obsSizeX[i]/2;
+    float obsR = obsX[i] + obsSizeX[i]/2;
+    
+    // Check if player is within X bounds of obstacle and just above the top surface
+    if (pR > obsL && pL < obsR && 
+        playerBottom >= obsT - threshold && 
+        playerBottom <= obsT + threshold) {
+      return true;
+    }
+  }
+  
+  // Also check if player is at bottom of screen (if that counts as ground)
+  if (playerBottom >= height - threshold && room == 1) {
+    return true;
+  }
+  
+  return false;
 }

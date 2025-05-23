@@ -308,7 +308,10 @@ PImage toddJumpL;
 PImage ToddRBlue, ToddLBlue, ToddRChargingBlue, ToddLChargingBlue, toddJumpRBlue, toddJumpLBlue;
 PImage ToddRGold, ToddLGold, ToddRChargingGold, ToddLChargingGold, toddJumpRGold, toddJumpLGold;
 int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
-
+PImage goldSkinOrb, blueSkinOrb;
+float orbX[];//arrays de posicions x i y dels orbs de skins
+float orbY[];
+boolean gSkinGold, gSkinBlue;
 
 //TERRENY VAR
 
@@ -366,6 +369,12 @@ void setup()
   toddJumpLBlue = loadImage("leftJumping.png");
   toddJumpRBlue = loadImage("rightJumping.png");
 
+  goldSkinOrb = loadImage("skinGold.png");
+  blueSkinOrb = loadImage("skinBlau.png");
+  orbX = new float[2];//arrays de posicions x i y dels orbs de skins
+  orbY = new float[2];
+  gSkinGold = false;
+  gSkinBlue = false;
   
   ToddRGold = loadImage("rightIdle.png");
   ToddLGold = loadImage("leftIdle.png");
@@ -387,6 +396,7 @@ void setup()
   grd100x50_3 = loadImage("ground100x50_3.png");
   grd250x50 = loadImage("ground250x50.png");
   oldMan = loadImage("oldMan.png");
+  oldMan.resize(40,40);
   
   //niv1ground2, niv1ground3
   
@@ -705,6 +715,18 @@ void draw()
       image(grd100x50_2, obsX2[1], obsY2[1]);
       image(grd100x50_3, obsX2[2], obsY2[2]);
       image(grd150x50_2, obsX2[3], obsY2[3]);
+      orbX[0] = 325;
+      orbY[0] = 325;
+      if(!gSkinBlue)
+      {
+        image(blueSkinOrb, orbX[0], orbY[0]);
+        if(playerPos.x-(playerSize/2) <= orbX[0]+(blueSkinOrb.width/2) && playerPos.x+(playerSize/2) >= orbX[0]-(blueSkinOrb.width/2) && playerPos.y-(playerSize/2) <= orbY[0]+(blueSkinOrb.height/2) && playerPos.y+(playerSize/2) >= orbY[0]-(blueSkinOrb.height/2))
+        {
+          gSkinBlue = true;
+          skinMode = 2;
+        }
+      }
+
       break;
     case 3:
       image(grd100x50_3, obsX3[0], obsY3[0]);
@@ -716,6 +738,17 @@ void draw()
       image(grd100x50_3, obsX4[1], obsY4[1]);
       image(grd250x50, obsX4[2], obsY4[2]);
       image(oldMan, 475, 80);
+      orbX[1] = 25;
+      orbY[1] = 225;
+      if(!gSkinGold)
+      {
+        image(goldSkinOrb, orbX[1], orbY[1]);
+        if(playerPos.x-(playerSize/2) <= orbX[1]+(goldSkinOrb.width/2) && playerPos.x+(playerSize/2) >= orbX[1]-(goldSkinOrb.width/2) && playerPos.y-(playerSize/2) <= orbY[1]+(goldSkinOrb.height/2) && playerPos.y+(playerSize/2) >= orbY[1]-(goldSkinOrb.height/2))
+        {
+          gSkinGold = true;
+          skinMode = 3;
+        }
+      }
       break;
   }
 

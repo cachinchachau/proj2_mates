@@ -6,31 +6,31 @@ enum Looking
 }
 
 //PLAYER VAR
-PVector playerPos;
+PVector playerPos; // Vector amb la posicio x e y del player
 
-int playerSize = 45;
+int playerSize = 45; // tamany del player
 
-float playerSpeedX = 2;
-float playerSpeedY = -5;
+float playerSpeedX = 2; //velocitat horitzontal del player
+float playerSpeedY = -5; //gravetat
 
-int playerDir;
-int playerLook;
+int playerDir; //direccio del input
+int playerLook; //direccio del sprite
 
-boolean charging = false;
-boolean isJumping = false;
+boolean charging = false; //bool per saber si el player esta cargant el salt o no
+boolean isJumping = false; //bool per saber si el player esta saltant o no
 
-int charge = 0;
-float jumpTime = 0;
+int charge = 0; //ens serveix per calcular l'alcada i llargada del salt
+float jumpTime = 0; //var que ens deixa saber quan ha de durar el salt
 
-float u = 0.0;
+float u = 0.0; // var que fem servir per els calculs del salt
 
 Looking plLook = Looking.LEFT;
 
-curva jump;
+curva jump; //curva del salt del jugador
 
-float jumpY;
+float jumpY; //posicio desde on ha saltat el player, ens serveix per calcular la curva de salt si el jugador passa de pantalla mentres esta en mig dun salt
 
-float angle = 0;
+float angle = 0; // angle del sprite del jugador mentres esta saltant
 
 //Varaibles Fulla
 curva cBezierFulla;
@@ -319,10 +319,10 @@ PImage fondo, oldMan;
 PImage niv1ground1, niv1ground2, niv1ground3;
 PImage grd150x50_1,grd150x50_2,grd100x50_1,grd100x50_2,grd100x50_3, grd250x50;
 
-int room = 1;
+int room = 1; //numero que usamos para ver en que sala esta el jugador
 
-boolean changingRoom = false;
-float jumpSpeedWhenChanged = 0;
+boolean changingRoom = false; //bool necesaria per evitar problemes a l'hora de transicionar entre pantalles
+float jumpSpeedWhenChanged = 0; //var que fem servir quan el jugador passa de pantalla mentres esta saltant
 
 float obsX1[];//array de posicions x del terreny sala 1
 float obsY1[];//array de posicions y del terreny sala 1
@@ -529,14 +529,14 @@ void setup()
 void draw()
 {
   
-  image(fondo, width/2, height/2);
+  image(fondo, width/2, height/2); //fiquem la imatge del fons 
   
   //UPDATE
   if (charging)//CARGANDO
   {
-    charge++;
+    charge++; //augmentamos la carga si el jugador esta cargando
     
-    if (charge >= 100)
+    if (charge >= 100) //si la carga ha llegado al maximo obligamos al jugador a saltar
     {
       jump();
     }
@@ -545,27 +545,27 @@ void draw()
   {
     if (isJumping)//SALTANDO
     {
-      playerJumpCalc();
+      playerJumpCalc(); //calculamos la nueva posicion del player mientras esta saltando
     }
     else//CAMINANDO/QUIETO
     {
-      playerPos.x += playerDir * playerSpeedX;
-      charge = 0;
+      playerPos.x += playerDir * playerSpeedX; //movimiento horizontal del player
+      charge = 0; //nos aseguramos de que se resetea la carga del jugador
     }
   }
   
-  playerPos.y -= playerSpeedY;
+  playerPos.y -= playerSpeedY; //aplicamos gravedad sobre el player
   
   if (!changingRoom) {
-    if (playerPos.y < 0) { // Going up to next room
+    if (playerPos.y < 0) { // si esta en los limites de la pantalla
       changeRoom(1);
     } 
-    else if (playerPos.y > height && room > 1) { // Going down to previous room
+    else if (playerPos.y > height && room > 1) { // si esta en los limites de la pantalla
       changeRoom(-1);
     }
   }
   
-  switch(room)
+  switch(room) // utilitzem un switch per nomes calcular les colissions amb els obstacles/terreny de la sala designada
   {
     case 1:
       checkPlayerColl(obsX1, obsY1, obsSizeX1, obsSizeY1);
@@ -585,8 +585,8 @@ void draw()
   
   //RENDERING
   
-  pushMatrix();
-  translate(playerPos.x, playerPos.y); // Mover al centro
+  pushMatrix(); //guradem la posicio original
+  translate(playerPos.x, playerPos.y); // ens movem a la posicio del player
   
   if (charging)
   {
@@ -657,8 +657,7 @@ void draw()
   else
   {
     
-
-    rotate(angle); // Rotar
+    rotate(angle); // rotem el sprite del player si esta saltant
     
     if (playerLook == 1)
     {
@@ -691,12 +690,12 @@ void draw()
       } 
     }
     
-    angle += 0.1;
+    angle += 0.1; // augmentem l'angle de rotacio
     
     
   }
   
-  popMatrix();
+  popMatrix(); // tornem a la posicio original
   
   fill(111, 255, 80);
   stroke(111, 255, 80);
@@ -777,7 +776,7 @@ void keyPressed()
       break;
   }
   
-  if (key == ' ' && !isJumping && !charging && isGrounded()) 
+  if (key == ' ' && !isJumping && !charging && isGrounded()) //ens aseguram de que el jugador esta al terre
   {     
     charging = true;
   }
@@ -808,7 +807,7 @@ void keyReleased()
   if (key == ' ')
   {
     
-    if (!isJumping && isGrounded())
+    if (!isJumping && isGrounded()) //evitem que el jugador pugui saltar enmig l'aire
     {
       jump();
     }
@@ -819,31 +818,32 @@ void keyReleased()
 
 //FUNCTIONS
 
-void jump()
+void jump() // funcio que cridem quan volem que el player ha de saltar
 {
   
-  jumpY = playerPos.y;
+  jumpY = playerPos.y; //fiquem la posicio de salt a la actual posicio y del player
   
-  if (isJumping)
+  if (isJumping) //ens asegurem un altre cop de que no pugui saltar a l'aire
     return;
-  charging = false;
+  charging = false; //ens asegurem de que no es segueixi sumant al counter
   isJumping = true;
   
-  u = 0.0;
+  u = 0.0; //resetegem la u
   
-  jumpTime = 1.5/charge;
+  jumpTime = 1.5/charge; 
   
   println("jump time is: " + jumpTime);
   
-  jumpCalc();
+  jumpCalc(); //funcio que calcula el salt
 }
 
 void jumpCalc()
 {
   
   
-  if (playerDir == 0)
+  if (playerDir == 0)//si el player no esta fent cap input el jugador saltara cap adalt
   {
+    //utilitzem la carga per saber l'alcada y distancia que ha de recorrer el player
     p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x , playerPos.y - charge * 2); // Y este es el P1
     p[2] = new PVector(playerPos.x , playerPos.y - charge * 2); // El P2
@@ -851,6 +851,7 @@ void jumpCalc()
   }
   else if (plLook == Looking.LEFT)
   {
+    //utilitzem la carga per saber l'alcada y distancia que ha de recorrer el player
     p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x - (charge - (charge / 2.5)), playerPos.y - charge * 2); // Y este es el P1
     p[2] = new PVector(playerPos.x - (charge + (charge / 2.5)), playerPos.y - charge * 2); // El P2
@@ -858,6 +859,7 @@ void jumpCalc()
   }
   else
   {
+    //utilitzem la carga per saber l'alcada y distancia que ha de recorrer el player
     p[0] = new PVector(playerPos.x, playerPos.y); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x + (charge - (charge / 2.5)), playerPos.y - charge * 2); // Y este es el P1
     p[2] = new PVector(playerPos.x + (charge + (charge / 2.5)), playerPos.y - charge * 2); // El P2
@@ -865,14 +867,15 @@ void jumpCalc()
   }
  
   jump = new curva(p);
-  jump.calcular_coefs();
+  jump.calcular_coefs();//calculem els coefs de la curva
   
 }
 
-void jumpCalcSwitch()
+void jumpCalcSwitch()//aquesta funcio es crida quan s'ha de calcular la nova curva al passar de pantalla mentres estas saltant
 {
   if (playerDir == 0)
   {
+    //utilitzem la carga per saber l'alcada y distancia que ha de recorrer el player, tambe tenim en compte la posicio y anterior del player
     p[0] = new PVector(playerPos.x,  height+jumpY); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x , height+jumpY - charge * 2); // Y este es el P1
     p[2] = new PVector(playerPos.x , height+jumpY - charge * 2); // El P2
@@ -880,6 +883,7 @@ void jumpCalcSwitch()
   }
   else if (plLook == Looking.LEFT)
   {
+    //utilitzem la carga per saber l'alcada y distancia que ha de recorrer el player, tambe tenim en compte la posicio y anterior del player
     p[0] = new PVector(playerPos.x, height+jumpY); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x - (charge - (charge / 2.5)), height+jumpY - charge * 2); // Y este es el P1
     p[2] = new PVector(playerPos.x - (charge + (charge / 2.5)), height+jumpY - charge * 2); // El P2
@@ -887,6 +891,7 @@ void jumpCalcSwitch()
   }
   else
   {
+    //utilitzem la carga per saber l'alcada y distancia que ha de recorrer el player, tambe tenim en compte la posicio y anterior del player
     p[0] = new PVector(playerPos.x, height+jumpY); // Este es el punto de ctrl P0
     p[1] = new PVector(playerPos.x + (charge - (charge / 2.5)), height+jumpY - charge * 2); // Y este es el P1
     p[2] = new PVector(playerPos.x + (charge + (charge / 2.5)), height+jumpY - charge * 2); // El P2
@@ -894,15 +899,15 @@ void jumpCalcSwitch()
   }
  
   jump = new curva(p);
-  jump.calcular_coefs();
+  jump.calcular_coefs();// calculem coefs de la corva
   
 }
 
 void checkPlayerColl(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsSizeY) {
-  // First check Y collisions (most important for standing)
+  // primer mirem colisions de la y
   checkPlayerCollY(obsX, obsY, obsSizeX, obsSizeY);
   
-  // Then check X collisions
+  // despres de la x
   checkPlayerCollX(obsX, obsY, obsSizeX, obsSizeY);
 }
 
@@ -920,9 +925,9 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
     float obsL = obsX[i] - obsSizeX[i]/2;
     float obsR = obsX[i] + obsSizeX[i]/2;
     
-    // Check if player is within X bounds of obstacle
+    // check if player is within X bounds of obstacle
     if (pR > obsL && pL < obsR) {
-      // Landing on top of platform
+      // landing on top of platform
       if (pB > obsT && pT < obsT && playerSpeedY <= 0) {
         playerPos.y = obsT - playerSize/2;
         playerSpeedY = 0;
@@ -931,7 +936,7 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
         onGround = true;
         angle = 0;
       }
-      // Hitting bottom of platform
+      // hitting bottom of platform
       else if (pT < obsB && pB > obsB && playerSpeedY >= 0) {
         playerPos.y = obsB + playerSize/2;
         playerSpeedY = 0;
@@ -939,7 +944,7 @@ void checkPlayerCollY(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
     }
   }
   
-  // Apply gravity if not on ground
+  // apliquem gravetat si el jugador esta en laire
   if (!onGround && !isJumping && !charging) {
     playerSpeedY = -5;
   }
@@ -957,28 +962,29 @@ void checkPlayerCollX(float[] obsX, float[] obsY, float[] obsSizeX, float[] obsS
     float obsL = obsX[i] - obsSizeX[i]/2;
     float obsR = obsX[i] + obsSizeX[i]/2;
     
-    // Check if player is within Y bounds of obstacle
+    // check if player is within Y bounds of obstacle
     if (pB > obsT && pT < obsB) {
-      // Left side collision
+      // left side collision
       if (pR > obsR && pL < obsR) {
         playerPos.x = obsR + playerSize/2 + 1;
       }
-      // Right side collision
+      // right side collision
       else if (pL < obsL && pR > obsL) {
         playerPos.x = obsL - playerSize/2 - 1;
       }
     }
   }
   
-  // Screen boundaries
+  // screen boundaries
   playerPos.x = constrain(playerPos.x, playerSize/2, width - playerSize/2);
 }
-float getMagnitude(PVector v)
+
+float getMagnitude(PVector v)//funcio per saber la magnitud d'un vector
 {
   return sqrt(v.x*v.x + v.y*v.y);
 }
 
-void normalizePV(PVector v)
+void normalizePV(PVector v)// funcio per normalitzar un vector
 {
   float mag = getMagnitude(v);
   
@@ -1002,10 +1008,10 @@ void playerJumpCalc()
     playerPos.y = jump.coefs[0].y + jump.coefs[1].y * u 
                + jump.coefs[2].y * u * u + jump.coefs[3].y * u * u * u;
     
-    float w = jumpTime;
+    float w = jumpTime; //esencialment funciona com a velocitat de salt
     
     u += w;
-    if (u >= 0.5){
+    if (u >= 0.5){ // si el jugador porta mes de la meitat del salt disminui
       w = -jumpTime;
     }
     
@@ -1014,39 +1020,37 @@ void playerJumpCalc()
 void changeRoom(int direction) {
   changingRoom = true;
   
-  // 1. Remember the jump speed if jumping
+  // recordad velocidad de salto
   if (isJumping) {
     jumpSpeedWhenChanged = jumpTime;
   }
   
-  // 2. Change room and reposition player
+  // 2. cambiar sala y reposicionar player
   room += direction;
   if (direction > 0) {
-    playerPos.y = height - 10; // Near bottom of new room
+    playerPos.y = height - 10; 
   } else {
     playerPos.y = 10; 
     isJumping = false;
   }
   
-  // 3. If jumping, continue with similar motion
+  // 3. si esta saltando que siga con ello
   if (isJumping) {
-    // Keep same X direction but reduce jump power slightly
     float power = jumpSpeedWhenChanged * 0.9; 
     jumpTime = power;
-    jumpCalcSwitch(); // Recalculate curve in new position
+    jumpCalcSwitch(); // recalculamos 
   }
   
   changingRoom = false;
 }
 
 boolean isGrounded() {
-  // Player's bottom edge position
+  // posicion inferior del player
   float playerBottom = playerPos.y + playerSize/2;
   
-  // Small threshold to allow for minor floating point inaccuracies
   float groundThreshold = 2.0;
   
-  // Check collision with all terrain objects in current room
+  // mirem colisions amb tots els obstacles de la sala
   switch(room) {
     case 1:
       return checkGroundedWithTerrain(obsX1, obsY1, obsSizeX1, obsSizeY1, playerBottom, groundThreshold);

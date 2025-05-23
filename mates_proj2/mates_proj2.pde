@@ -37,6 +37,10 @@ curva cBezierFulla;
 PImage leaf;
 float aux = 0.0; // Parámetro "aux" per a recorrer la curva
 PVector fulla; //Objecte que recorrerà la curva
+PVector pLeaf[];
+boolean cooldownL;
+float counterL;
+int posYVariationL;
 
 
 class curva {
@@ -243,7 +247,6 @@ void aplicarFiltreGold(PImage sprite) {
 }
 
 PVector p[];//array de vectores para el salto
-PVector pLeaf[];
 
 
 //PLAYER SPRITES
@@ -327,11 +330,13 @@ void setup()
   pLeaf[0] = new PVector(0, 300);
   pLeaf[1] = new PVector(100, 200);
   pLeaf[2] = new PVector(200, 400);
-  pLeaf[3] = new PVector(300, 500);
+  pLeaf[3] = new PVector(500, 300);
   cBezierFulla = new curva(pLeaf);
   fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
-  
-  
+  cBezierFulla.calcular_coefsBezier();
+  cooldownL = true;
+  //counterL;
+  posYVariationL = (int)random(-150,100);
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;
@@ -417,8 +422,6 @@ void draw()
   image(fondo, width/2, height/2);
   
   //UPDATE
-  calNovaPosFulla();
-  pinta_fulla();
   if (charging)//CARGANDO
   {
     charge++;
@@ -611,7 +614,8 @@ void draw()
 
   
   println(room);
-
+  calNovaPosFulla();
+  pinta_fulla();
 }
 
 //INPUTS

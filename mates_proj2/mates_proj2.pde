@@ -42,7 +42,6 @@ boolean cooldownL;
 float counterL;
 int posYVariationL;
 
-
 class curva {
   // Atributos
   PVector[] puntos_de_ctrl;
@@ -172,9 +171,19 @@ void calNovaPosFulla() {
   fulla.set(x, y);
   
   // Incrementar el parámetro "aux"
-  aux += 0.01;
+  aux += 0.005;
   if (aux >= 1.0) {
-    aux = 0.0; // Reiniciar
+    leaf = loadImage("leaf.png");
+    posYVariationL = (int)random(-200,100);
+    pLeaf[0] = new PVector(0, 300 + posYVariationL);
+    pLeaf[1] = new PVector(100, 200 + posYVariationL);
+    pLeaf[2] = new PVector(200, 400 + posYVariationL);
+    pLeaf[3] = new PVector(500, 300 + posYVariationL);
+    cBezierFulla = new curva(pLeaf);
+    aplicarFiltreFulla(leaf);
+    fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
+    cBezierFulla.calcular_coefsBezier();
+    aux = 0.0; // Reiniciar 
   }
 }
 
@@ -183,6 +192,36 @@ void pinta_fulla() {
   if (fulla != null && leaf != null) {
     imageMode(CENTER);
     image(leaf, fulla.x, fulla.y); // Tamaño ajustable
+  }
+}
+
+void aplicarFiltreFulla(PImage sprite) {
+  // Recorrer todos los píxeles
+  for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
+    for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
+      // 1) Obtener el color del píxel actual
+      color pixel = sprite.get(x, y);
+      float alpha = alpha(pixel);
+      
+      // Solo procesar píxeles no transparentes
+      if(alpha > 0) {
+        // 2) Extraer componentes y aplicar fórmula del filtro azul
+        float r = red(pixel) * random(1,5);    // Reduce componente roja
+        float g = green(pixel) * 1;   // Reduce componente verde
+        float b = blue(pixel) * 1;    // Aumenta componente azul
+        
+        // 3) Crear nuevo color con los valores ajustados
+        color nuevoColor = color(
+          constrain(r, 0, 255),
+          constrain(g, 0, 255),
+          constrain(b, 0, 255),
+          alpha
+        );
+        
+        // 4) Asignar el nuevo color al píxel
+        sprite.set(x, y, nuevoColor);
+      }
+    }
   }
 }
 
@@ -326,17 +365,17 @@ void setup()
   fondo.resize(width,height);
   
   leaf = loadImage("leaf.png");
+  cooldownL = true;
+  counterL = 0.0f;
+  posYVariationL = (int)random(-150,100);
   pLeaf = new PVector[4];
-  pLeaf[0] = new PVector(0, 300);
-  pLeaf[1] = new PVector(100, 200);
-  pLeaf[2] = new PVector(200, 400);
-  pLeaf[3] = new PVector(500, 300);
+  pLeaf[0] = new PVector(0, 300 + posYVariationL);
+  pLeaf[1] = new PVector(100, 200 + posYVariationL);
+  pLeaf[2] = new PVector(200, 400 + posYVariationL);
+  pLeaf[3] = new PVector(500, 300 + posYVariationL);
   cBezierFulla = new curva(pLeaf);
   fulla = new PVector(pLeaf[0].x, pLeaf[0].y);
   cBezierFulla.calcular_coefsBezier();
-  cooldownL = true;
-  //counterL;
-  posYVariationL = (int)random(-150,100);
   
   playerPos = new PVector(width/2, height/2);
   playerDir = 0;
@@ -614,8 +653,8 @@ void draw()
 
   
   println(room);
-  calNovaPosFulla();
-  pinta_fulla();
+  
+  fullaSpawner();
 }
 
 //INPUTS
@@ -943,4 +982,13 @@ boolean checkGroundedWithTerrain(float[] obsX, float[] obsY, float[] obsSizeX, f
   }
   
   return false;
+}
+
+void fullaSpawner()
+{
+  if (cooldownL)
+  {
+    calNovaPosFulla();
+    pinta_fulla();
+  }
 }

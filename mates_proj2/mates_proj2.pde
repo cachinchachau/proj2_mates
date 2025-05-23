@@ -313,6 +313,8 @@ int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
 //TERRENY VAR
 
 PImage fondo;
+PImage niv1ground1, niv1ground2, niv1ground3;
+PImage grd150x50_1,grd150x50_2,grd100x50_1,grd100x50_2,grd100x50_3, grd250x50;
 
 int room = 1;
 
@@ -375,6 +377,17 @@ void setup()
  
   fondo = loadImage("fondo.png");
   fondo.resize(width,height);
+  niv1ground1 = loadImage("ground1.png");
+  niv1ground2 = loadImage("ground1_2.png");
+  niv1ground3 = loadImage("ground150x50_1.png");
+  grd150x50_1 = loadImage("ground150x50_2.png");
+  grd150x50_2 = loadImage("ground150x50_3.png");
+  grd100x50_1 = loadImage("ground100x50_1.png");
+  grd100x50_2 = loadImage("ground100x50_2.png");
+  grd100x50_3 = loadImage("ground100x50_3.png");
+  grd250x50 = loadImage("ground250x50.png");
+  
+  //niv1ground2, niv1ground3
   
   leaf = loadImage("leaf.png");
   cooldownL = true;
@@ -681,32 +694,32 @@ void draw()
   switch(room)
   {
     case 1:
-      for (int i = 0; i < numTerr; i++)
-      {
-      rect(obsX1[i], obsY1[i], obsSizeX1[i], obsSizeY1[i]);
-      }
+      image(niv1ground1, 250, 475);
+      image(niv1ground2, 437.5, 375);
+      image(niv1ground2, 62.5, 375);
+      image(niv1ground3, 250, 175);
       break;
     case 2:
-      for (int i = 0; i < numTerr; i++)
-      {
-        rect(obsX2[i], obsY2[i], obsSizeX2[i], obsSizeY2[i]);
-      }
+      image(grd100x50_1, obsX2[0], obsY2[0]);
+      image(grd100x50_2, obsX2[1], obsY2[1]);
+      image(grd100x50_3, obsX2[2], obsY2[2]);
+      image(grd150x50_2, obsX2[3], obsY2[3]);
       break;
     case 3:
-      for (int i = 0; i < numTerr; i++)
-      {
-        rect(obsX3[i], obsY3[i], obsSizeX3[i], obsSizeY3[i]);
-      }
+      image(grd100x50_3, obsX3[0], obsY3[0]);
+      image(grd100x50_2, obsX3[1], obsY3[1]);
+      image(grd150x50_1, obsX3[2], obsY3[2]);
       break;
     case 4:
       for (int i = 0; i < numTerr; i++)
-      {
-        rect(obsX4[i], obsY4[i], obsSizeX4[i], obsSizeY4[i]);
-      }
+      image(grd100x50_1, obsX4[0], obsY4[0]);
+      image(grd100x50_3, obsX4[1], obsY4[1]);
+      image(grd250x50, obsX4[2], obsY4[2]);
       break;
   }
 
   println(room);
+  
   
   fullaSpawner();
 }

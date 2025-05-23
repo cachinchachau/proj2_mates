@@ -153,7 +153,7 @@ class curva {
 }
 
 // Calcula la nova posició de la fulla en la curva
-void calNovaPosFulla() {
+  void calNovaPosFulla() {
   if (fulla == null || cBezierFulla == null) return;
   
   // Calcul de la posició en la curva
@@ -327,6 +327,11 @@ float obsY3[];//array de posicions y del terreny sala 3
 float obsSizeX3[];// tamany X dels obstacles sala 3
 float obsSizeY3[];// tamany Y dels obstacles sala 3
 
+float obsX4[];//array de posicions x del terreny sala 4
+float obsY4[];//array de posicions y del terreny sala 4
+float obsSizeX4[];// tamany X dels obstacles sala 4
+float obsSizeY4[];// tamany Y dels obstacles sala 4
+
 int numTerr;
 
 void setup()
@@ -437,6 +442,41 @@ void setup()
   obsSizeX3 = new float[4];
   obsSizeY3 = new float[4];
   
+  obsX3[0] = 450;
+  obsY3[0] = 450;
+  obsSizeX3[0] = 100;
+  obsSizeY3[0] = 50;
+  
+  obsX3[1] = 350;
+  obsY3[1] = 225;
+  obsSizeX3[1] = 100;
+  obsSizeY3[1] = 50;
+  
+  obsX3[2] = 75;
+  obsY3[2] = 125;
+  obsSizeX3[2] = 150;
+  obsSizeY3[2] = 50;
+  
+  obsX4 = new float[4];
+  obsY4 = new float[4];
+  obsSizeX4 = new float[4];
+  obsSizeY4 = new float[4];
+  
+  obsX4[0] = 250;
+  obsY4[0] = 425;
+  obsSizeX4[0] = 100;
+  obsSizeY4[0] = 50;
+  
+  obsX4[1] = 50;
+  obsY4[1] = 275;
+  obsSizeX4[1] = 100;
+  obsSizeY4[1] = 50;
+  
+  obsX4[2] = 375;
+  obsY4[2] = 125;
+  obsSizeX4[2] = 250;
+  obsSizeY4[2] = 50;
+  
   p = new PVector[4];
  
   aplicarFiltreBlau(ToddRBlue);
@@ -504,6 +544,9 @@ void draw()
       break;
     case 3:
       checkPlayerColl(obsX3, obsY3, obsSizeX3, obsSizeY3);
+      break;
+    case 4:
+      checkPlayerColl(obsX4, obsY4, obsSizeX4, obsSizeY4);
       break;
   }
   
@@ -648,10 +691,14 @@ void draw()
         rect(obsX3[i], obsY3[i], obsSizeX3[i], obsSizeY3[i]);
       }
       break;
+    case 4:
+      for (int i = 0; i < numTerr; i++)
+      {
+        rect(obsX4[i], obsY4[i], obsSizeX4[i], obsSizeY4[i]);
+      }
+      break;
   }
 
-
-  
   println(room);
   
   fullaSpawner();
@@ -953,6 +1000,8 @@ boolean isGrounded() {
       return checkGroundedWithTerrain(obsX2, obsY2, obsSizeX2, obsSizeY2, playerBottom, groundThreshold);
     case 3:
       return checkGroundedWithTerrain(obsX3, obsY3, obsSizeX3, obsSizeY3, playerBottom, groundThreshold);
+    case 4: 
+      return checkGroundedWithTerrain(obsX4, obsY4, obsSizeX4, obsSizeY4, playerBottom, groundThreshold);
     default:
       return false;
   }

@@ -312,7 +312,7 @@ int skinMode = 1; //1 = skin normal, 2 = skin blava, 3 = skin daurada
 
 //TERRENY VAR
 
-PImage fondo;
+PImage fondo, oldMan;
 PImage niv1ground1, niv1ground2, niv1ground3;
 PImage grd150x50_1,grd150x50_2,grd100x50_1,grd100x50_2,grd100x50_3, grd250x50;
 
@@ -386,6 +386,7 @@ void setup()
   grd100x50_2 = loadImage("ground100x50_2.png");
   grd100x50_3 = loadImage("ground100x50_3.png");
   grd250x50 = loadImage("ground250x50.png");
+  oldMan = loadImage("oldMan.png");
   
   //niv1ground2, niv1ground3
   
@@ -711,10 +712,10 @@ void draw()
       image(grd150x50_1, obsX3[2], obsY3[2]);
       break;
     case 4:
-      for (int i = 0; i < numTerr; i++)
       image(grd100x50_1, obsX4[0], obsY4[0]);
       image(grd100x50_3, obsX4[1], obsY4[1]);
       image(grd250x50, obsX4[2], obsY4[2]);
+      image(oldMan, 475, 80);
       break;
   }
 

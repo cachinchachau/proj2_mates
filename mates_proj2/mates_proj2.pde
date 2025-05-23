@@ -39,8 +39,9 @@ float aux = 0.0; // Parámetro "aux" per a recorrer la curva
 PVector fulla; //Objecte que recorrerà la curva
 PVector pLeaf[];
 boolean cooldownL;
-float counterL;
+float counterL = 0;
 int posYVariationL;
+float leafAng = 0;
 
 class curva {
   // Atributos
@@ -174,6 +175,7 @@ class curva {
   aux += 0.005;
   if (aux >= 1.0) {
     leaf = loadImage("leaf.png");
+    cooldownL = false;
     posYVariationL = (int)random(-200,100);
     pLeaf[0] = new PVector(0, 300 + posYVariationL);
     pLeaf[1] = new PVector(100, 200 + posYVariationL);
@@ -191,7 +193,12 @@ class curva {
 void pinta_fulla() {
   if (fulla != null && leaf != null) {
     imageMode(CENTER);
-    image(leaf, fulla.x, fulla.y); // Tamaño ajustable
+    pushMatrix();
+    translate(fulla.x, fulla.y);
+    leafAng += 0.05;
+    rotate(leafAng);
+    image(leaf, 0, 0); // Tamaño ajustable
+    popMatrix();
   }
 }
 
@@ -447,8 +454,8 @@ void setup()
   obsSizeX3[0] = 100;
   obsSizeY3[0] = 50;
   
-  obsX3[1] = 350;
-  obsY3[1] = 225;
+  obsX3[1] = 325;
+  obsY3[1] = 235;
   obsSizeX3[1] = 100;
   obsSizeY3[1] = 50;
   
@@ -1039,5 +1046,14 @@ void fullaSpawner()
   {
     calNovaPosFulla();
     pinta_fulla();
+  }
+  else
+  {
+    counterL++;
+    if (counterL >= 45)
+    {
+      cooldownL = true;
+      counterL = 0;
+    }
   }
 }

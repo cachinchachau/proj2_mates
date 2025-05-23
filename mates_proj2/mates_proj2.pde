@@ -34,14 +34,14 @@ float angle = 0; // angle del sprite del jugador mentres esta saltant
 
 //Varaibles Fulla
 curva cBezierFulla;
-PImage leaf;
+PImage leaf; //imatge de la fulla
 float aux = 0.0; // Parámetro "aux" per a recorrer la curva
 PVector fulla; //Objecte que recorrerà la curva
-PVector pLeaf[];
-boolean cooldownL;
+PVector pLeaf[]; //vector per la curva de la fulla
+boolean cooldownL; //cooldown i counter per el temps de spawn entre fulla i fulla
 float counterL = 0;
-int posYVariationL;
-float leafAng = 0;
+int posYVariationL; //Variable que controla rang en Y on pot spawnejar la fulla
+float leafAng = 0; //Angle per rotar la fulla
 
 class curva {
   // Atributos
@@ -173,7 +173,7 @@ class curva {
   
   // Incrementar el parámetro "aux"
   aux += 0.005;
-  if (aux >= 1.0) {
+  if (aux >= 1.0) { //Si aux arriba a 1, es a dir al final de la curva, es crea una nova fulla en una posicio diferent amb un altre color canviat amb els LUTs llavors cal tornar a setejar totes les variables de la fulla
     leaf = loadImage("leaf.png");
     cooldownL = false;
     posYVariationL = (int)random(-200,100);
@@ -189,20 +189,20 @@ class curva {
   }
 }
 
-// Dibuja la hoja fulla
+// Dibuixa la fulla
 void pinta_fulla() {
   if (fulla != null && leaf != null) {
     imageMode(CENTER);
-    pushMatrix();
-    translate(fulla.x, fulla.y);
-    leafAng += 0.05;
+    pushMatrix(); //funcionament angle per rotar la fulla
+    translate(fulla.x, fulla.y); 
+    leafAng += 0.05; 
     rotate(leafAng);
-    image(leaf, 0, 0); // Tamaño ajustable
+    image(leaf, 0, 0); //Imatge de la fulla a 0,0 perque amb la funció anteiror li anem canviant la posició
     popMatrix();
   }
 }
 
-void aplicarFiltreFulla(PImage sprite) {
+void aplicarFiltreFulla(PImage sprite) { //Función para las LUTs de la hoja
   // Recorrer todos los píxeles
   for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
     for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
@@ -212,10 +212,10 @@ void aplicarFiltreFulla(PImage sprite) {
       
       // Solo procesar píxeles no transparentes
       if(alpha > 0) {
-        // 2) Extraer componentes y aplicar fórmula del filtro azul
-        float r = red(pixel) * random(1,5);    // Reduce componente roja
-        float g = green(pixel) * 1;   // Reduce componente verde
-        float b = blue(pixel) * 1;    // Aumenta componente azul
+        // 2) Extraer componentes y aplicar fórmula
+        float r = red(pixel) * random(1,5);    // Random entre 1 y 5 que hace dominante a la roja
+        float g = green(pixel) * 1; 
+        float b = blue(pixel) * 1;    
         
         // 3) Crear nuevo color con los valores ajustados
         color nuevoColor = color(
@@ -232,7 +232,7 @@ void aplicarFiltreFulla(PImage sprite) {
   }
 }
 
-void aplicarFiltreBlau(PImage sprite) {
+void aplicarFiltreBlau(PImage sprite) { //Función para las LUTs de la skin azul
   // Recorrer todos los píxeles
   for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
     for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
@@ -263,7 +263,7 @@ void aplicarFiltreBlau(PImage sprite) {
 }
 
 // Nuevo filtro amarillo
-void aplicarFiltreGold(PImage sprite) {
+void aplicarFiltreGold(PImage sprite) { //Función para las LUTs de la skin dorada
  for(int x = 0; x < sprite.width; x++) {       // Recorre columnas (X)
     for(int y = 0; y < sprite.height; y++) {    // Recorre filas (Y)
       // 1) Obtener el color del píxel actual
@@ -272,10 +272,10 @@ void aplicarFiltreGold(PImage sprite) {
       
       // Solo procesar píxeles no transparentes
       if(alpha > 0) {
-        // 2) Extraer componentes y aplicar fórmula del filtro azul
-        float r = red(pixel) * 2.7;    // Reduce componente roja
-        float g = green(pixel) * 2.3;   // Reduce componente verde
-        float b = blue(pixel) * 1.4;    // Aumenta componente azul
+        // 2) Extraer componentes y aplicar fórmula
+        float r = red(pixel) * 2.7;    // Parametros color amarillo
+        float g = green(pixel) * 2.3;   
+        float b = blue(pixel) * 1.4;    
         
         // 3) Crear nuevo color con los valores ajustados
         color nuevoColor = color(
@@ -368,14 +368,14 @@ void setup()
   ToddLChargingBlue = loadImage("leftPrepared.png");
   toddJumpLBlue = loadImage("leftJumping.png");
   toddJumpRBlue = loadImage("rightJumping.png");
-
+  //Set variables per objectes de skins
   goldSkinOrb = loadImage("skinGold.png");
   blueSkinOrb = loadImage("skinBlau.png");
   orbX = new float[2];//arrays de posicions x i y dels orbs de skins
   orbY = new float[2];
   gSkinGold = false;
   gSkinBlue = false;
-  
+  //Set imatges skins oro
   ToddRGold = loadImage("rightIdle.png");
   ToddLGold = loadImage("leftIdle.png");
   ToddRChargingGold = loadImage("rightPrepared.png");
@@ -383,7 +383,7 @@ void setup()
   toddJumpLGold = loadImage("leftJumping.png");
   toddJumpRGold = loadImage("rightJumping.png");
 
- 
+ //Set imatge del terreny i fondo
   fondo = loadImage("fondo.png");
   fondo.resize(width,height);
   niv1ground1 = loadImage("ground1.png");
@@ -399,7 +399,7 @@ void setup()
   oldMan.resize(40,40);
   
   //niv1ground2, niv1ground3
-  
+  //Set imatge i variables de la cuvra de bezier de la fulla. Set també de les variables del controllador de spawn fulla
   leaf = loadImage("leaf.png");
   cooldownL = true;
   counterL = 0.0f;
@@ -1091,16 +1091,16 @@ boolean checkGroundedWithTerrain(float[] obsX, float[] obsY, float[] obsSizeX, f
   return false;
 }
 
-void fullaSpawner()
+void fullaSpawner() //Funcio que controlla spawner fulla
 {
-  if (cooldownL)
+  if (cooldownL) //si hi ha la fulla
   {
-    calNovaPosFulla();
-    pinta_fulla();
+    calNovaPosFulla(); //Funció per anarla movent a la curva
+    pinta_fulla(); //Funcio per anarla pintant i rotant
   }
-  else
+  else //Si la fulla sta en cooldown
   {
-    counterL++;
+    counterL++; //Contador que fa de cooldown pero tornar a activarla
     if (counterL >= 45)
     {
       cooldownL = true;
